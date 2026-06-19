@@ -1,0 +1,287 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   KONSOL FESTIVAL / VIBE.6 — Brand tokens
+   Source: Vibe-6 brand book
+   ============================================================ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Brand palette */
+  --color-ink: #100F0E;          /* Core Black — hero, big accents */
+  --color-paper: #F6F5FD;        /* Paper — light bg */
+  --color-vibe: #7B36FF;         /* Vibe Purple — CTA, quotes, active */
+  --color-lime: #95CE17;         /* Festival Lime — labels, QR, highlight */
+  --color-cyan: #79EDFF;         /* Electric Cyan — secondary signal */
+  --color-pink: #FF3697;         /* Hot Pink — rare emotional accent */
+
+  /* Semantic */
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Typography */
+  --font-display: var(--font-unbounded), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #F6F5FD;
+  --foreground: #100F0E;
+  --card: #FFFFFF;
+  --card-foreground: #100F0E;
+  --popover: #FFFFFF;
+  --popover-foreground: #100F0E;
+  --primary: #100F0E;
+  --primary-foreground: #F6F5FD;
+  --secondary: #ECEBF6;
+  --secondary-foreground: #100F0E;
+  --muted: #ECEBF6;
+  --muted-foreground: #6B6A78;
+  --accent: #7B36FF;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF3697;
+  --border: rgba(16, 15, 14, 0.08);
+  --input: rgba(16, 15, 14, 0.10);
+  --ring: #7B36FF;
+  --chart-1: #7B36FF;
+  --chart-2: #95CE17;
+  --chart-3: #79EDFF;
+  --chart-4: #FF3697;
+  --chart-5: #100F0E;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #100F0E;
+  --sidebar-primary: #7B36FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #ECEBF6;
+  --sidebar-accent-foreground: #100F0E;
+  --sidebar-border: rgba(16, 15, 14, 0.08);
+  --sidebar-ring: #7B36FF;
+}
+
+.dark {
+  --background: #100F0E;
+  --foreground: #F6F5FD;
+  --card: #1A1917;
+  --card-foreground: #F6F5FD;
+  --popover: #1A1917;
+  --popover-foreground: #F6F5FD;
+  --primary: #F6F5FD;
+  --primary-foreground: #100F0E;
+  --secondary: #2A2926;
+  --secondary-foreground: #F6F5FD;
+  --muted: #2A2926;
+  --muted-foreground: #A8A7B3;
+  --accent: #7B36FF;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF3697;
+  --border: rgba(246, 245, 253, 0.10);
+  --input: rgba(246, 245, 253, 0.15);
+  --ring: #7B36FF;
+  --chart-1: #7B36FF;
+  --chart-2: #95CE17;
+  --chart-3: #79EDFF;
+  --chart-4: #FF3697;
+  --chart-5: #F6F5FD;
+  --sidebar: #1A1917;
+  --sidebar-foreground: #F6F5FD;
+  --sidebar-primary: #7B36FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #2A2926;
+  --sidebar-accent-foreground: #F6F5FD;
+  --sidebar-border: rgba(246, 245, 253, 0.10);
+  --sidebar-ring: #7B36FF;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 90px;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ============================================================
+   Festival utility classes
+   ============================================================ */
+
+/* Pixel/QR modular grid background */
+.bg-pixel-grid {
+  background-image:
+    linear-gradient(to right, rgba(246,245,253,0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(246,245,253,0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.bg-pixel-grid-dark {
+  background-image:
+    linear-gradient(to right, rgba(16,15,14,0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16,15,14,0.05) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+/* Dot grid */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, rgba(16,15,14,0.12) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+.bg-dot-grid-light {
+  background-image: radial-gradient(circle, rgba(246,245,253,0.18) 1.5px, transparent 1.5px);
+  background-size: 24px 24px;
+}
+
+/* Brand twist: Latin "vi" inside Cyrillic */
+.brand-vi {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Slash command pill */
+.slash-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  transition: transform 200ms ease, filter 200ms ease;
+}
+.slash-pill:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.slash-pill-cyan  { background: #79EDFF; color: #100F0E; }
+.slash-pill-vibe  { background: #7B36FF; color: #FFFFFF; }
+.slash-pill-lime  { background: #95CE17; color: #100F0E; }
+.slash-pill-pink  { background: #FF3697; color: #FFFFFF; }
+.slash-pill-paper { background: #F6F5FD; color: #100F0E; }
+.slash-pill-ink   { background: #100F0E; color: #F6F5FD; }
+
+/* Tag chip (label) */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 9999px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Decorative QR-style pixel block */
+.qr-mark {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(7, 1fr);
+  gap: 2px;
+  aspect-ratio: 1 / 1;
+}
+.qr-mark > div {
+  background: currentColor;
+  border-radius: 2px;
+}
+
+/* Marquee animation for ticker */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 32s linear infinite;
+}
+
+/* Soft float animation for hero decoration */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-8px) rotate(2deg); }
+}
+.float-slow { animation: float-slow 6s ease-in-out infinite; }
+
+/* Gradient sweep on hero text */
+.text-gradient-vibe {
+  background: linear-gradient(90deg, #95CE17 0%, #79EDFF 50%, #7B36FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(123, 54, 255, 0.3); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(123, 54, 255, 0.5); }
+
+/* Selection */
+::selection { background: #95CE17; color: #100F0E; }
+
+/* Schedule card variants */
+.schedule-card {
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+.schedule-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
