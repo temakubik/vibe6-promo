@@ -71,3 +71,40 @@ Stage Summary:
 - Что будет — 4 карточки приведены в соответствие с реальной программой.
 - Легенда цветовой кодировки помогает быстро ориентироваться в типах активностей.
 - Воскресная колонка (3 слота) визуально сбалансирована footer-нотой и равной высотой карточек.
+
+---
+Task ID: 3
+Agent: Super Z (main)
+Task: Заменить display-шрифт Unbounded на брендовый Chava (из Vibe-6 brand book). Пользователь прислал Chava-Regular.otf.
+
+Work Log:
+- Проверил загруженный `/home/z/my-project/upload/Chava-Regular.otf` через fontTools:
+  - Размер: 14KB, формат OpenType (CFF).
+  - 233 глифа: полный Latin A-Z, a-z, digits 0-9, полный Cyrillic А-я (64 глифа), плюс Hebrew и знаки пунктуации.
+  - Единственный вес: Regular (400).
+- Скопировал файл в `/home/z/my-project/public/fonts/Chava-Regular.otf` для раздачи через static-папку Next.js.
+- Добавил `@font-face` правило в `src/app/globals.css` для Chava с `font-display: swap` и явным `unicode-range` (Latin, Latin-1, Cyrillic, Cyrillic Supplement, Armenian) — браузер не будет пытаться грузить шрифт для glyphs outside этого range (например, для Hebrew будет fallback).
+- Переключил `--font-display` с `var(--font-unbounded)` на `'Chava', system-ui, sans-serif` в `@theme inline` блоке.
+- Убрал загрузку Unbounded из `src/app/layout.tsx` — теперь грузятся только Inter (body) и JetBrains Mono (mono). Это убирает ~лишний network-запрос и упрощает CSS.
+- Первичная VLM-проверка показала FAIL: Chava грузилась как Regular, но Tailwind-классы `font-extrabold` (800) / `font-bold` (700) на H1/H2/H3 заставляли браузер делать synthetic/faux bold — глифы получались bloated, smeared, с halo-эффектом, особенно на крупном "KONSOL FESTIVAL".
+- Решение: добавил в globals.css CSS-правило
+  ```css
+  [class*="font-display"], .font-display { font-weight: 400 !important; }
+  ```
+  которое форсирует weight 400 для всех display-элементов. Иерархия достигается через size + color contrast + letter-spacing, не через weight.
+- Также поправил `.slash-pill` — теперь использует `var(--font-display)` (Chava) вместо `var(--font-mono)`. По брендбуку Vibe-6 слэш-команды /Connect /CREATE /VIBE /Chill — это декоративные brand-элементы в Chava, не mono. Поправил `font-weight: 400` и `letter-spacing: 0.01em` (был `-0.01em` для mono).
+- Проверил в браузере:
+  - DOM: `h1` и `.slash-pill` теперь показывают `fontFamily: "Chava, system-ui, sans-serif"` и `fontWeight: "400"` — synthetic bold устранён.
+  - Lint: чисто.
+  - VLM-верификация hero — PASS: H1, slash-pills, subtitle рендерятся чётко, без bloating, Cyrillic без tofu.
+  - VLM-верификация full-page (3 чанка по ~3000px) — PASS: все заголовки секций (Программа, О мероприятии, Локация, Призы, FAQ, Участвуешь?), большие цифры (3, ~80, 10–12, TBD), карточки "Что будет" (Онбординг/Мастер-классы/Демо и JAM/Костёр), timeline Program, FAQ-вопросы — все в чистом Chava 400. Layout-регрессий нет.
+  - Mobile 390x844 — тоже чисто.
+- Никаких runtime errors в console.
+
+Stage Summary:
+- Display-шрифт сайта заменён с Unbounded на оригинальный брендовый Chava (Regular 400).
+- Шрифт раздаётся из `/public/fonts/Chava-Regular.otf` через `@font-face` с `font-display: swap`.
+- CSS lock `font-weight: 400 !important` для всех `.font-display` элементов предотвращает synthetic-bold.
+- Slash-команды теперь тоже в Chava (раньше были в mono) — соответствует брендбуку Vibe-6.
+- Unbounded полностью удалён из зависимостей страницы — экономия одного network-запроса.
+- Все визуальные проверки пройдены: hero, full-page desktop, mobile. Cyrillic рендерится чисто.

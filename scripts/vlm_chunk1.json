@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "1. **Section headings**:  \n   - `/KEY_NUMBERS` (white text on dark background) – renders cleanly in Chava, natural weight.  \n   - `/FORMAT` (purple text on light background) – renders cleanly.  \n   - `/WHAT_WILL_BE` (green text on light background) – renders cleanly.  \n   - `/FOR_WHOM` (white text on dark background) – renders cleanly.  \n   - `ЧТО БУДЕТ` (large heading, light background) – renders cleanly.  \n   - `КОРПОРАТИВ В ФОРМАТЕ КОРОТКОГО ХАКАТОНА` (large heading, light background) – renders cleanly.  \n   - `ДЛЯ КОГО` (large heading, dark background) – renders cleanly.  \n\n2. **Big stat numbers**:  \n   - `3` (purple, dark background) – renders cleanly.  \n   - `~80` (green, dark background) – renders cleanly.  \n   - `10-12` (cyan, dark background) – renders cleanly.  \n   - `TBD` (pink, dark background) – renders cleanly.  \n   - `80` (green, dark background) – renders cleanly.  \n   - `10-12` (cyan, dark background) – renders cleanly.  \n\n3. **Slash pills**:  \n   - `/CONNECT` (cyan), `/CREATE` (purple), `/VIBE` (green), `/CHILL` (pink) – all render cleanly.  \n   - `/ПОДАТЬ ЗАЯВКУ` (purple, top-right) – renders cleanly.  \n\n4. **Card titles in 'Что будет' section**:  \n   - `ОНБОРДИНГ` (purple card) – renders cleanly.  \n   - `МАСТЕР-КЛАССЫ` (cyan card) – renders cleanly.  \n   - `ДЕМО И JAM` (pink card) – renders cleanly.  \n   - `КОСТЁР` (green card) – renders cleanly.  \n\n5. **Program timeline titles**:  \n   - Not in this chunk.  \n\n6. **Chava issues**:  \n   - No visible broken, bloated, distorted, fuzzy, or synthetic-bold text.  \n   - No missing Cyrillic glyphs (no tofu boxes, question marks, or fallback fonts).  \n\n7. **Visual hierarchy**:  \n   - Headings stand out via size, color, and spacing (e.g., `ЧТО БУДЕТ` is larger and bolder than body text, even without bold weight). Readable.  \n\n8. **Layout regressions**:  \n   - No text overflow, clipping, line-height collapse, misaligned metrics, or broken containers. All text fits within containers.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1781897885,
+  "id": "20260620033753e26c7b2d5dc342b2",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260620033753e26c7b2d5dc342b2",
+  "usage": {
+    "completion_tokens": 579,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 5277,
+    "prompt_tokens_details": {
+      "cached_tokens": 6
+    },
+    "total_tokens": 5856
+  }
+}

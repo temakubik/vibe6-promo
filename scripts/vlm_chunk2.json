@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "### 1. Section Headings  \n- **Программа**: Renders in clean, natural-weight Chava (Regular 400). No bolding or distortion.  \n- **О мероприятии**: Renders in clean, natural-weight Chava.  \n- **Локация**: Renders in clean, natural-weight Chava.  \n\n\n### 2. Big Stat Numbers  \nNo visible big stat numbers (e.g., 3, ~80, 10-12, TBD) in this chunk.  \n\n\n### 3. Slash Pills  \nNo visible slash pills (e.g., /Connect, /CREATE) in this chunk.  \n\n\n### 4. Card Titles in 'Что будет' Section  \nNot in this chunk.  \n\n\n### 5. Program Timeline Titles  \n- **Пятница**: Renders in clean, natural-weight Chava.  \n- **Суббота**: Renders in clean, natural-weight Chava.  \n- **Воскресенье**: Renders in clean, natural-weight Chava.  \n- Timeline items (e.g., **Онбординг**, **Обед**, **Мастер-классы**, **Демо**, **Костёр**): All render in clean, natural-weight Chava.  \n\n\n### 6. Chava Rendering Issues  \nNo visible issues (broken, bloated, distorted, fuzzy, or missing glyphs) in this chunk. All text uses Chava Regular 400 with no fallback fonts or tofu boxes.  \n\n\n### 7. Visual Hierarchy Readability  \nYes, headings stand out via **size** (larger than body text) and **color** (white on dark backgrounds, black on light backgrounds). No bold weight is needed for distinction.  \n\n\n### 8. Layout Regressions  \nNo visible text overflow, clipping, line-height collapse, misaligned metrics, or broken containers. Layout is consistent and well-spaced.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1781897910,
+  "id": "20260620033820d2585d4d4d2c482f",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "20260620033820d2585d4d4d2c482f",
+  "usage": {
+    "completion_tokens": 386,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 5292,
+    "prompt_tokens_details": {
+      "cached_tokens": 6
+    },
+    "total_tokens": 5678
+  }
+}

@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Unbounded, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin", "cyrillic"],
-  display: "swap",
-});
-
-const unbounded = Unbounded({
-  variable: "--font-unbounded",
-  subsets: ["latin", "cyrillic"],
-  weight: ["400", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -26,7 +19,7 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "KONSOL FESTIVAL / VIBE.6 — Три дня. Команды. Реальные проекты.",
   description:
-    "KONSOL FESTIVAL — корпоратив в формате короткого хакатона. ~80 участников, 10–12 команд, реальные проекты, костёр и живая музыка. Площадка в формате буткемпа, 2026.",
+    "KONSOL FESTIVAL — корпоратив в формате буткемпа. ~80 участников, 10–12 команд, мастер-классы, демо, костёр и живая музыка. Три дня, 2026.",
   keywords: [
     "Konsol Festival",
     "Vibe.6",
@@ -34,7 +27,7 @@ export const metadata: Metadata = {
     "корпоратив",
     "фестиваль",
     "команды",
-    "реальные проекты",
+    "мастер-классы",
     "bootcamp",
   ],
   authors: [{ name: "Konsol Festival" }],
@@ -59,7 +52,7 @@ export default function RootLayout({
   return (
     <html lang="ru" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${unbounded.variable} ${jetbrains.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${jetbrains.variable} antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster />

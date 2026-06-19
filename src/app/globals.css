@@ -4,6 +4,25 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================
+   Chava — decorative brand font (Vibe-6 brand book)
+   Used for: hero words, slash-commands, brand inserts, big titles.
+   NOT for long body text. Supports Latin + Cyrillic.
+   ============================================================ */
+@font-face {
+  font-family: 'Chava';
+  src: url('/fonts/Chava-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range:
+    U+0020-007F, /* Basic Latin */
+    U+00A0-00FF, /* Latin-1 Supplement */
+    U+0400-04FF, /* Cyrillic */
+    U+0500-052F, /* Cyrillic Supplement */
+    U+0530-058F; /* Armenian */
+}
+
+/* ============================================================
    KONSOL FESTIVAL / VIBE.6 — Brand tokens
    Source: Vibe-6 brand book
    ============================================================ */
@@ -55,7 +74,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* Typography */
-  --font-display: var(--font-unbounded), system-ui, sans-serif;
+  --font-display: 'Chava', system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
@@ -181,17 +200,28 @@
   letter-spacing: -0.02em;
 }
 
-/* Slash command pill */
+/* Chava is a single-weight (400) decorative font. Lock the weight to 400
+   for every element using --font-display, so Tailwind `font-extrabold` /
+   `font-bold` utilities can't trigger browser-synthesized bold that
+   degrades the glyph shapes. Hierarchy is achieved through size,
+   letter-spacing and color contrast instead. */
+[class*="font-display"],
+.font-display {
+  font-weight: 400 !important;
+}
+
+/* Slash command pill — per Vibe-6 brand book, slash commands use the
+   decorative Chava font, not the mono one. */
 .slash-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
-  font-family: var(--font-mono);
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 400;
   font-size: 0.95rem;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
   line-height: 1;
   white-space: nowrap;
   transition: transform 200ms ease, filter 200ms ease;
