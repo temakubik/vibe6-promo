@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "A)  \n- Пятница: Last event is \"17:00 - 18:30 Обзординг с Черняковым\" (fully visible, no whitespace below).  \n- Суббота: Last event is \"14:00 - 15:30 Мастер-классы\" (fully visible, no whitespace below).  \n- Воскресенье: Last event is \"11:00 - 12:00 Сборы и уезд\" (fully visible, no whitespace below).  \n\nB) No horizontal legend bar. Bottom of image: Empty background (no legend, cut-off cards, or footer text).  \n\nC)  \n- Пятница: Timeline line continues through all event cards (no break).  \n- Суббота: Timeline line continues through all event cards (no break).  \n- Воскресенье: Timeline line continues through all event cards (no break).  \n\nD) No event cards have clipped text.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1781896594,
+  "id": "2026062003163086b945de10c94416",
+  "model": "glm-4.6v",
+  "object": "chat.completion",
+  "request_id": "2026062003163086b945de10c94416",
+  "usage": {
+    "completion_tokens": 200,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1609,
+    "prompt_tokens_details": {
+      "cached_tokens": 7
+    },
+    "total_tokens": 1809
+  }
+}

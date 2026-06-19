@@ -34,3 +34,40 @@ Stage Summary:
 - Apply form works end-to-end with validation + success confirmation (no backend; client-side only).
 - TBD items from content plan kept as visible placeholders (location address, prize fund amount, dates) so the user can spot and fill them in.
 - Files saved to `/home/z/my-project/scripts/`: vibe6_preview.png (rendered brand PDF), preview-home.png (desktop screenshot), preview-mobile-full.png (mobile screenshot), preview-apply-modal.png + preview-apply-filled.png + preview-apply-success.png (modal flow screenshots).
+
+---
+Task ID: 2
+Agent: Super Z (main)
+Task: Заменить расписание в блоке «Программа» на трёхдневное с реальными временными слотами, присланное пользователем.
+
+Work Log:
+- Получил от пользователя трёхдневное расписание: Пятница (7 слотов 12:30–00:00), Суббота (8 слотов 09:00–22:00), Воскресенье (3 слота 08:00–12:00).
+- Полностью переписал `src/components/site/Program.tsx`:
+  - Изменил `Slot`-тип: теперь обязательно поле `time` (раньше было `desc`).
+  - Добавил 3 массива `DAY1`/`DAY2`/`DAY3` с реальными слотами и временем.
+  - Расширил `Day`-тип полем `footer` (короткое описание дня).
+  - Сетка теперь `lg:grid-cols-3` (вместо `lg:grid-cols-2`).
+  - Каждая колонка стала `flex flex-col` с timeline в `flex-1` и footer-нотой в `mt-auto` — это балансирует короткую воскресную колонку (3 слота) против длинных пятницы/субботы.
+  - Добавил цветовую легенду под сеткой: программа / еда / контент / вечер / отдых.
+  - Подобрал иконки под каждую активность: Users (Онбординг), Utensils (Обед/Ужин), MicVocal (Онбординг с Черняковым), Armchair (Отдых), GraduationCap (Мастер-классы), Flame (Вечерний костёр), Coffee (Завтрак), Presentation (Демо), Music (JAM/Вечерина), Compass (Рефлексия), Luggage (Сборы и уезд).
+- Обновил остальные упоминания «2 дня / два дня» по всему сайту:
+  - `KeyNumbers` (2 → 3 дня).
+  - `Hero`: подзаголовок, мета-строка, тикер.
+  - `WhatWillBe`: 4 карточки переделаны с «Хакатон/Стендап/Музыка/Костёр» на «Онбординг/Мастер-классы/Демо и JAM/Костёр».
+  - `Format` (Sections.tsx): текст про «за два дня создаём реальные продукты» → «за три дня проходим путь от онбординга до демо и вечернего костра».
+  - `About`: pitch-вариант А.
+  - `Footer`: описание.
+  - `layout.tsx`: `<title>` и meta description.
+- Прогнал `bun run lint` — чисто.
+- Проверил в браузере (agent-browser):
+  - DOM: 18 слотов в секции (7+8+3), 3 footer-ноты, легенда на месте.
+  - Скриншоты desktop (1280×800) и mobile (390×844) — без переполнений и обрезаний.
+  - VLM-верификация: PASS — все слоты с правильными временем, колонки равной высоты, воскресная колонка сбалансирована footer-нотой, легенда читается.
+- Никаких runtime errors.
+
+Stage Summary:
+- Блок «Программа» обновлён с 2-дневного плейсхолдерного на реальное 3-дневное расписание с временами.
+- Текст на сайте согласованно переведён с «2 дня» на «3 дня» (Hero, KeyNumbers, Format, About, Footer, metadata).
+- Что будет — 4 карточки приведены в соответствие с реальной программой.
+- Легенда цветовой кодировки помогает быстро ориентироваться в типах активностей.
+- Воскресная колонка (3 слота) визуально сбалансирована footer-нотой и равной высотой карточек.

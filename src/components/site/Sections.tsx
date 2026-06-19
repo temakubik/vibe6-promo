@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowUpRight, Users, Calendar, Trophy, Layers } from 'lucide-react'
+import { ArrowUpRight, Users, Calendar, Trophy, Layers, GraduationCap, Presentation, Music, Flame } from 'lucide-react'
 import { TagChip, SlashPill, QrMark } from './Decor'
 
 /* ============================================================
@@ -8,7 +8,7 @@ import { TagChip, SlashPill, QrMark } from './Decor'
    ============================================================ */
 export function KeyNumbers({ onApply }: { onApply: () => void }) {
   const items = [
-    { value: '2', unit: 'дня', label: 'формат', color: 'vibe' },
+    { value: '3', unit: 'дня', label: 'формат', color: 'vibe' },
     { value: '~80', unit: 'человек', label: 'участники', color: 'lime' },
     { value: '10–12', unit: 'команд', label: 'по 6–7 человек', color: 'cyan' },
     { value: 'TBD', unit: 'призовой фонд', label: 'скоро', color: 'pink' },
@@ -80,9 +80,9 @@ export function Format() {
 
           <div className="lg:col-span-7 lg:pt-3">
             <p className="font-sans text-lg sm:text-xl text-ink/80 leading-relaxed">
-              Мы делимся на команды по 6–7 человек и за два дня создаём реальные
-              продукты и сервисы. Вместо шаблонных активностей — живой процесс,
-              где работа и отдых переплетаются.
+              Мы делимся на команды по 6–7 человек и за три дня проходим путь
+              от онбординга до демо и вечернего костра. Вместо шаблонных
+              активностей — живой процесс, где работа и отдых переплетаются.
             </p>
             <p className="mt-5 font-sans text-base sm:text-lg text-ink/60 leading-relaxed">
               Это про сплочение через общее дело, а не через скучные сценарные игры.
@@ -109,28 +109,28 @@ export function Format() {
 export function WhatWillBe() {
   const items = [
     {
-      title: 'Хакатон',
-      desc: 'Команды получают задания и работают над проектами.',
+      title: 'Онбординг',
+      desc: 'Знакомство, погружение в атмосферу, онбординг с Черняковым.',
       color: 'vibe',
-      icon: Layers,
-    },
-    {
-      title: 'Стендап',
-      desc: 'Короткие спикины: делимся прогрессом и идеями.',
-      color: 'cyan',
       icon: Users,
     },
     {
-      title: 'Музыка',
-      desc: 'Живая музыка в перерывах и вечером.',
+      title: 'Мастер-классы',
+      desc: 'Программа мастер-классов в пятницу и субботу.',
+      color: 'cyan',
+      icon: GraduationCap,
+    },
+    {
+      title: 'Демо и JAM',
+      desc: 'Показываем результаты и уходим в вечерину.',
       color: 'pink',
-      icon: Calendar,
+      icon: Presentation,
     },
     {
       title: 'Костёр',
       desc: 'Вечер первого дня: песни, атмосфера, общение.',
       color: 'lime',
-      icon: Trophy,
+      icon: Flame,
     },
   ] as const
 

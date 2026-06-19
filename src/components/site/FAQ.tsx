@@ -181,7 +181,7 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-3 font-sans text-sm text-paper/60 max-w-xs leading-relaxed">
-              Корпоратив в формате короткого хакатона. Два дня, команды, реальные проекты.
+              Корпоратив в формате буткемпа. Три дня, команды, мастер-классы, демо и вечерний костёр.
             </p>
           </div>
 

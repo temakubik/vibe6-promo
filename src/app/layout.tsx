@@ -24,7 +24,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KONSOL FESTIVAL / VIBE.6 — Два дня. Команды. Реальные проекты.",
+  title: "KONSOL FESTIVAL / VIBE.6 — Три дня. Команды. Реальные проекты.",
   description:
     "KONSOL FESTIVAL — корпоратив в формате короткого хакатона. ~80 участников, 10–12 команд, реальные проекты, костёр и живая музыка. Площадка в формате буткемпа, 2026.",
   keywords: [
@@ -40,14 +40,14 @@ export const metadata: Metadata = {
   authors: [{ name: "Konsol Festival" }],
   openGraph: {
     title: "KONSOL FESTIVAL / VIBE.6",
-    description: "Два дня. Команды. Реальные проекты. Корпоратив в формате короткого хакатона.",
+    description: "Три дня. Команды. Реальные проекты. Корпоратив в формате буткемпа с мастер-классами и вечерним костром.",
     siteName: "Konsol Festival",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "KONSOL FESTIVAL / VIBE.6",
-    description: "Два дня. Команды. Реальные проекты.",
+    description: "Три дня. Команды. Реальные проекты.",
   },
 };
 

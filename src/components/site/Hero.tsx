@@ -53,12 +53,12 @@ export function Hero({ onApply }: { onApply: () => void }) {
 
               {/* Subtitle */}
               <p className="mt-6 text-xl sm:text-2xl md:text-3xl font-display font-semibold text-paper leading-tight">
-                Два дня. Команды. Реальные проекты.
+                Три дня. Команды. Реальные проекты.
               </p>
 
               {/* Meta line */}
               <p className="mt-3 font-mono text-sm text-paper/60 tracking-wide">
-                2026 · площадка в формате буткемпа · [город/регион TBD]
+                2026 · три дня · площадка в формате буткемпа · [город/регион TBD]
               </p>
 
               {/* Slash commands preview */}
@@ -134,7 +134,7 @@ export function Hero({ onApply }: { onApply: () => void }) {
           {[...Array(2)].map((_, dup) => (
             <div key={dup} className="flex items-center gap-6 px-3 font-mono text-sm text-paper/70">
               <TickerItem text="KONSOL FESTIVAL / VIBE.6" />
-              <TickerItem text="2 ДНЯ" accent="lime" />
+              <TickerItem text="3 ДНЯ" accent="lime" />
               <TickerItem text="~80 УЧАСТНИКОВ" />
               <TickerItem text="10–12 КОМАНД" accent="cyan" />
               <TickerItem text="ХАКАТОН + КОСТЁР + МУЗЫКА" />

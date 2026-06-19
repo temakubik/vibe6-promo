@@ -49,7 +49,7 @@ export function About() {
             <span className="block mb-3">
               <span className="text-paper/50 font-mono text-xs uppercase tracking-widest">вариант А — открытый</span>
               <br />
-              Приезжайте вайбкодить и чилить: два дня, команды, реальные проекты, костёр.
+              Приезжайте вайбкодить и чилить: три дня, команды, мастер-классы, демо и костёр.
             </span>
             <span className="block">
               <span className="text-paper/50 font-mono text-xs uppercase tracking-widest">вариант Б — вуалированный, TBD</span>
