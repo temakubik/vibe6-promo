@@ -35,29 +35,44 @@ export function Navbar() {
     >
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
         <div className="flex h-16 items-center justify-between gap-4">
-          {/* Logo */}
-          <a href="#top" className="flex items-center gap-2 group" aria-label="Konsol Festival">
-            <span className="font-display font-extrabold text-base sm:text-lg tracking-tight text-ink">
-              KONSOL
+          <a href="#top" className="flex items-center gap-2 group" aria-label="Консоль / vibe-6">
+            <span
+              className={cn(
+                'font-display font-extrabold text-base sm:text-lg tracking-tight transition-colors',
+                scrolled ? 'text-ink' : 'text-paper'
+              )}
+            >
+              Консоль
             </span>
-            <span className="font-mono text-xs text-vibe font-bold tracking-widest">/VIBE.6</span>
+            <span className="font-display text-xs text-lime font-bold tracking-widest">/vibe-6</span>
           </a>
 
-          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                className="px-3 py-2 rounded-full text-sm font-medium text-ink/70 hover:text-ink hover:bg-ink/5 transition-colors"
+                className={cn(
+                  'px-3 py-2 rounded-full text-sm font-medium transition-colors',
+                  scrolled
+                    ? 'text-ink/70 hover:text-ink hover:bg-ink/5'
+                    : 'text-paper/80 hover:text-paper hover:bg-paper/10'
+                )}
               >
                 {l.label}
               </a>
             ))}
           </nav>
 
-          {/* Right actions */}
           <div className="hidden md:flex items-center gap-2">
+            <SlashPill
+              as="a"
+              href="/guide"
+              variant="lime"
+              className="cursor-pointer"
+            >
+              /База_знаний
+            </SlashPill>
             <SlashPill
               as="a"
               href="https://t.me/+N_X0TPh1rqVkMTBi"
@@ -68,10 +83,12 @@ export function Navbar() {
             </SlashPill>
           </div>
 
-          {/* Mobile toggle */}
           <button
             type="button"
-            className="md:hidden p-2 rounded-lg hover:bg-ink/5"
+            className={cn(
+              'md:hidden p-2 rounded-lg transition-colors',
+              scrolled ? 'text-ink hover:bg-ink/5' : 'text-paper hover:bg-paper/10'
+            )}
             onClick={() => setOpen((o) => !o)}
             aria-label="Меню"
           >
@@ -94,6 +111,13 @@ export function Navbar() {
                 {l.label}
               </a>
             ))}
+            <a
+              href="/guide"
+              onClick={() => setOpen(false)}
+              className="mt-2 slash-pill slash-pill-lime justify-center"
+            >
+              /База_знаний
+            </a>
             <a
               href="https://t.me/+N_X0TPh1rqVkMTBi"
               onClick={() => setOpen(false)}

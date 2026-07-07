@@ -3,7 +3,7 @@
 ---
 Task ID: 1
 Agent: Super Z (main)
-Task: Build a single-page promo site for "KONSOL FESTIVAL / VIBE.6" event based on uploaded content plan (promo-site-content-plan.md) and brand book (Vibe-6.pdf).
+Task: Build a single-page promo site for "KONSOL FESTIVAL / VIBE-6" event based on uploaded content plan (promo-site-content-plan.md) and brand book (Vibe-6.pdf).
 
 Work Log:
 - Read uploaded files: `/home/z/my-project/upload/promo-site-content-plan.md` (Russian content plan for 6 pages) and `/home/z/my-project/upload/Vibe-6.pdf` (brand book).
@@ -30,7 +30,7 @@ Work Log:
 - Final dev.log check: clean compile, no errors.
 
 Stage Summary:
-- Single-page promo site for KONSOL FESTIVAL / VIBE.6 is live at `/` route, fully responsive (mobile + desktop), all 6 content sections present (Home / Program / About / Location / Apply / FAQ), brand identity from Vibe-6.pdf is applied throughout (colors, typography, slash commands, QR/pixel decor).
+- Single-page promo site for KONSOL FESTIVAL / VIBE-6 is live at `/` route, fully responsive (mobile + desktop), all 6 content sections present (Home / Program / About / Location / Apply / FAQ), brand identity from Vibe-6.pdf is applied throughout (colors, typography, slash commands, QR/pixel decor).
 - Apply form works end-to-end with validation + success confirmation (no backend; client-side only).
 - TBD items from content plan kept as visible placeholders (location address, prize fund amount, dates) so the user can spot and fill them in.
 - Files saved to `/home/z/my-project/scripts/`: vibe6_preview.png (rendered brand PDF), preview-home.png (desktop screenshot), preview-mobile-full.png (mobile screenshot), preview-apply-modal.png + preview-apply-filled.png + preview-apply-success.png (modal flow screenshots).

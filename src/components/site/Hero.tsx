@@ -45,7 +45,7 @@ export function Hero() {
 
               {/* H1 */}
               <h1 className="font-display font-extrabold tracking-tight leading-[0.95] text-[14vw] sm:text-[12vw] md:text-[10vw] lg:text-[8.5vw] xl:text-[140px]">
-                <span className="block text-paper">KONSOL</span>
+                <span className="block text-paper">Консоль</span>
                 <span className="block">
                   <span className="text-gradient-vibe">VIBE-6</span>
                 </span>
@@ -135,11 +135,11 @@ export function Hero() {
         <div className="flex marquee-track whitespace-nowrap py-3">
           {[...Array(2)].map((_, dup) => (
             <div key={dup} className="flex items-center gap-6 px-3 font-mono text-sm text-paper/70">
-              <TickerItem text="KONSOL FESTIVAL / VIBE.6" />
+              <TickerItem text="КОНСОЛЬ / VIBE-6" />
               <TickerItem text="3 ДНЯ" accent="lime" />
               <TickerItem text="~80 УЧАСТНИКОВ" />
-              <TickerItem text="10–12 КОМАНД" accent="cyan" />
-              <TickerItem text="ХАКАТОН + КОСТЁР + МУЗЫКА" />
+              <TickerItem text="9 МАСТЕР-КЛАССОВ" accent="cyan" />
+              <TickerItem text="МАСТЕР-КЛАССЫ + ВЕЧЕРНЯЯ ПРОГРАММА" />
               <TickerItem text="2026" accent="vibe" />
               <TickerItem text="/Connect /CREATE /VIBE /Chill" accent="pink" />
             </div>
