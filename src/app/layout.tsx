@@ -17,7 +17,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KONSOL / VIBE-6 — Три дня, реальное общение, новые знания.",
+  title: "Vibe - 6, день рождения в стиле буткемпа",
   description:
     "VIBE-6 — трёхдневная встреча с мастер-классами от опытных коллег, темами по вайб-кодингу и ИИ, вечерней программой и живым общением. Les Art Resort, 2026.",
   icons: {
@@ -33,15 +33,21 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Konsol Festival" }],
   openGraph: {
-    title: "KONSOL / VIBE-6",
+    title: "Vibe - 6, день рождения в стиле буткемпа",
     description: "Три дня, реальное общение, новые знания. Мастер-классы от опытных коллег, темы по ИИ и вайб-кодингу, вечерняя программа.",
     siteName: "Konsol Festival",
     type: "website",
+    images: [
+      {
+        url: "/OG.png",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "KONSOL / VIBE-6",
+    title: "Vibe - 6, день рождения в стиле буткемпа",
     description: "Три дня, реальное общение, новые знания.",
+    images: ["/OG.png"],
   },
 };
 
