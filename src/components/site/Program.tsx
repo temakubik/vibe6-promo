@@ -30,7 +30,7 @@ const DAY1: Slot[] = [
   { time: '17:00 – 18:30', title: 'Отдых',                     icon: Armchair,      color: 'paper' },
   { time: '18:30 – 19:30', title: 'Ужин',                      icon: Utensils,      color: 'lime'  },
   { time: '19:30 – 21:30', title: 'Мастер-классы',             icon: GraduationCap, color: 'vibe'  },
-  { time: '21:30 – 00:00', title: 'Вечерний костёр',           icon: Flame,         color: 'pink'  },
+  { time: '21:30 – 00:00', title: 'Вечерняя программа',        icon: Flame,         color: 'pink'  },
 ]
 
 const DAY2: Slot[] = [
@@ -45,9 +45,10 @@ const DAY2: Slot[] = [
 ]
 
 const DAY3: Slot[] = [
-  { time: '08:00 – 09:30', title: 'Завтрак',                   icon: Coffee,        color: 'lime'  },
-  { time: '09:30 – 11:00', title: 'Рефлексия',                 icon: Compass,       color: 'cyan'  },
-  { time: '11:00 – 12:00', title: 'Сборы и уезд',              icon: Luggage,       color: 'vibe'  },
+  { time: '08:00 – 11:00', title: 'Завтрак',                   icon: Coffee,        color: 'lime'  },
+  { time: '11:00 – 13:00', title: 'Рефлексия',                 icon: Compass,       color: 'cyan'  },
+  { time: '13:00 – 13:30', title: 'Обед',                      icon: Utensils,      color: 'lime'  },
+  { time: '14:00',         title: 'Выезд из отеля',            icon: Luggage,       color: 'vibe'  },
 ]
 
 type Day = {
@@ -60,9 +61,9 @@ type Day = {
 }
 
 const DAYS: Day[] = [
-  { num: '1', name: 'Пятница',     date: 'day one · open',  accent: 'vibe', slots: DAY1, footer: 'приезд, обед, онбординг и вечерний костёр' },
+  { num: '1', name: 'Пятница',     date: 'day one · open',  accent: 'vibe', slots: DAY1, footer: 'приезд, обед, онбординг и вечерняя программа' },
   { num: '2', name: 'Суббота',     date: 'day two · peak',  accent: 'lime', slots: DAY2, footer: 'мастер-классы, демо и вечерина до 22:00' },
-  { num: '3', name: 'Воскресенье', date: 'day three · out', accent: 'cyan', slots: DAY3, footer: 'завтрак, рефлексия и отъезд до 12:00' },
+  { num: '3', name: 'Воскресенье', date: 'day three · out', accent: 'cyan', slots: DAY3, footer: 'завтрак, рефлексия, обед и выезд из отеля' },
 ]
 
 export function Program() {
@@ -76,9 +77,9 @@ export function Program() {
             Программа
           </h2>
           <p className="mt-4 font-sans text-lg sm:text-xl text-ink/70 max-w-3xl leading-relaxed">
-            Три дня: пятница — приезд, онбординг и вечерний костёр;
+            Три дня: пятница — приезд, онбординг и вечерняя программа;
             суббота — мастер-классы, демо и вечерина;
-            воскресенье — рефлексия и отъезд.
+            воскресенье — завтрак, рефлексия, обед и выезд из отеля.
           </p>
         </div>
 
@@ -116,18 +117,18 @@ function DayColumn({ day }: { day: Day }) {
   return (
     <div className="bg-white border border-ink/8 rounded-3xl p-5 sm:p-6 lg:p-7 flex flex-col lg:items-stretch">
       {/* Day header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="mb-6">
+        <div className="flex items-center justify-between gap-3">
+          <span className={`tag-chip ${accentBg}`}>
+            day {day.num}
+          </span>
           <div className={`font-mono text-xs uppercase tracking-widest ${accentText}`}>
             {day.date}
           </div>
-          <h3 className="mt-1 font-display font-extrabold text-3xl sm:text-4xl text-ink leading-none">
-            {day.name}
-          </h3>
         </div>
-        <span className={`tag-chip ${accentBg}`}>
-          day {day.num}
-        </span>
+        <h3 className="mt-3 font-display font-extrabold text-3xl sm:text-4xl text-ink leading-none">
+          {day.name}
+        </h3>
       </div>
 
       {/* Timeline */}

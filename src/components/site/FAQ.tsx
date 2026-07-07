@@ -16,7 +16,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Нужно ли уметь программировать?',
-    a: 'Нет, в командах нужны разные роли: разработчики, дизайнеры, менеджеры, идеологи. Каждому найдётся место.',
+    a: 'Нет. Главное — интерес к темам мастер-классов, желание общаться и брать новое в работу.',
   },
   {
     q: 'Что с техникой?',
@@ -24,7 +24,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Где будет проходить?',
-    a: 'На площадке в формате буткемпа. Точные данные — скоро. Следите за обновлениями.',
+    a: 'На площадке Les Art Resort. Точные организационные детали и программа появятся ближе к мероприятию.',
   },
   {
     q: 'Нужно ли платить?',
@@ -50,10 +50,10 @@ export function FAQ() {
             <p className="mt-5 font-sans text-base sm:text-lg text-ink/65 leading-relaxed max-w-md">
               Не нашли ответ?{' '}
               <a
-                href="#apply"
+                href="https://t.me/+N_X0TPh1rqVkMTBi"
                 className="text-vibe font-semibold underline underline-offset-4 hover:no-underline"
               >
-                Задайте вопрос
+                Перейдите в Телеграм-чат
               </a>{' '}
               — мы ответим лично.
             </p>
@@ -63,10 +63,10 @@ export function FAQ() {
                 <QrMark variant="vibe" className="w-12 h-12" seed={77} />
                 <div>
                   <div className="font-mono text-xs text-ink/50 uppercase tracking-widest">
-                    ask anything
+                    chat · updates
                   </div>
                   <div className="font-display font-bold text-ink text-sm">
-                    @konsol_fest
+                    Телеграм-чат
                   </div>
                 </div>
               </div>
@@ -106,10 +106,10 @@ export function FAQ() {
 /* ============================================================
    FinalCTA — bottom CTA screen
    ============================================================ */
-export function FinalCTA({ onApply }: { onApply: () => void }) {
+export function FinalCTA() {
   return (
     <section
-      id="apply"
+      id="contacts"
       className="relative bg-ink text-paper py-24 sm:py-32 lg:py-40 overflow-hidden"
     >
       <div className="absolute inset-0 bg-pixel-grid pointer-events-none" />
@@ -120,33 +120,35 @@ export function FinalCTA({ onApply }: { onApply: () => void }) {
 
       <div className="relative mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10 text-center">
         <div className="flex justify-center mb-6">
-          <TagChip variant="lime">/join</TagChip>
+          <TagChip variant="lime">/connect</TagChip>
         </div>
 
         <h2 className="font-display font-extrabold tracking-tight leading-[0.95] text-5xl sm:text-7xl lg:text-8xl xl:text-9xl">
-          <span className="block text-paper">Участвуешь?</span>
+          <span className="block text-paper">Остаёмся на связи?</span>
         </h2>
 
         <p className="mt-6 font-sans text-lg sm:text-2xl text-paper/75 max-w-2xl mx-auto leading-relaxed">
-          Оставь заявку, и мы сами подберём тебе команду.
+          Подключайся к Телеграм-чату и следи за обновлениями программы, мастер-классов и логистики.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-          <button
-            onClick={onApply}
+          <a
+            href="https://t.me/+N_X0TPh1rqVkMTBi"
+            target="_blank"
+            rel="noreferrer"
             className="group inline-flex items-center gap-2 bg-vibe hover:bg-vibe/90 text-white font-display font-bold text-lg px-8 py-5 rounded-full transition-all hover:translate-y-[-1px]"
           >
-            Оставить заявку
+            Телеграм-чат
             <ArrowUpRight
               size={20}
               className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
-          </button>
+          </a>
           <a
-            href="#program"
+            href="/guide"
             className="inline-flex items-center gap-2 bg-transparent border border-paper/20 hover:border-paper/40 text-paper font-display font-semibold text-lg px-8 py-5 rounded-full transition-colors"
           >
-            Посмотреть программу
+            База знаний
           </a>
         </div>
 
@@ -181,7 +183,7 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-3 font-sans text-sm text-paper/60 max-w-xs leading-relaxed">
-              Корпоратив в формате буткемпа. Три дня, команды, мастер-классы, демо и вечерний костёр.
+              Три дня, реальное общение и новые знания. Мастер-классы, темы по ИИ и вайб-кодингу, вечерняя программа.
             </p>
           </div>
 
@@ -192,6 +194,7 @@ export function Footer() {
             </div>
             <ul className="space-y-2">
               <li><a href="#program" className="font-sans text-sm text-paper/80 hover:text-lime transition-colors">Программа</a></li>
+              <li><a href="/guide" className="font-sans text-sm text-paper/80 hover:text-lime transition-colors">База знаний</a></li>
               <li><a href="#about" className="font-sans text-sm text-paper/80 hover:text-lime transition-colors">О мероприятии</a></li>
               <li><a href="#location" className="font-sans text-sm text-paper/80 hover:text-lime transition-colors">Локация</a></li>
               <li><a href="#faq" className="font-sans text-sm text-paper/80 hover:text-lime transition-colors">FAQ</a></li>
@@ -205,21 +208,21 @@ export function Footer() {
             </div>
             <ul className="space-y-2">
               <li>
-                <a
-                  href="https://t.me/konsol_fest"
-                  className="inline-flex items-center gap-2 font-sans text-sm text-paper/80 hover:text-cyan transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Send size={14} /> @konsol_fest
-                </a>
+                <span className="inline-flex items-center gap-2 font-sans text-sm text-paper/80">
+                  <Send size={14} /> звонить
+                </span>
+              </li>
+              <li>
+                <span className="font-sans text-sm text-paper/80">чат</span>
               </li>
               <li>
                 <a
-                  href="mailto:hello@konsol.fest"
+                  href="https://t.me/+N_X0TPh1rqVkMTBi"
                   className="font-sans text-sm text-paper/80 hover:text-cyan transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
-                  hello@konsol.fest
+                  Телеграм-чат
                 </a>
               </li>
             </ul>

@@ -17,30 +17,28 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "KONSOL FESTIVAL / VIBE.6 — Три дня. Команды. Реальные проекты.",
+  title: "KONSOL / VIBE.6 — Три дня, реальное общение, новые знания.",
   description:
-    "KONSOL FESTIVAL — корпоратив в формате буткемпа. ~80 участников, 10–12 команд, мастер-классы, демо, костёр и живая музыка. Три дня, 2026.",
+    "VIBE-6 — трёхдневная встреча с мастер-классами от опытных коллег, темами по вайб-кодингу и ИИ, вечерней программой и живым общением. Les Art Resort, 2026.",
   keywords: [
-    "Konsol Festival",
+    "Konsol",
     "Vibe.6",
-    "хакатон",
     "корпоратив",
-    "фестиваль",
-    "команды",
     "мастер-классы",
-    "bootcamp",
+    "ИИ",
+    "вайб-кодинг",
   ],
   authors: [{ name: "Konsol Festival" }],
   openGraph: {
     title: "KONSOL FESTIVAL / VIBE.6",
-    description: "Три дня. Команды. Реальные проекты. Корпоратив в формате буткемпа с мастер-классами и вечерним костром.",
+    description: "Три дня, реальное общение, новые знания. Мастер-классы от опытных коллег, темы по ИИ и вайб-кодингу, вечерняя программа.",
     siteName: "Konsol Festival",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
     title: "KONSOL FESTIVAL / VIBE.6",
-    description: "Три дня. Команды. Реальные проекты.",
+    description: "Три дня, реальное общение, новые знания.",
   },
 };
 

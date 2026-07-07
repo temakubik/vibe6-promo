@@ -1,17 +1,17 @@
 'use client'
 
-import { ArrowUpRight, Users, Calendar, Trophy, Layers, GraduationCap, Presentation, Music, Flame } from 'lucide-react'
-import { TagChip, SlashPill, QrMark } from './Decor'
+import { ArrowUpRight, Users, Calendar, Layers, GraduationCap, Presentation, Music, Flame } from 'lucide-react'
+import { TagChip, QrMark } from './Decor'
 
 /* ============================================================
    KeyNumbers — 4 figures in a row
    ============================================================ */
-export function KeyNumbers({ onApply }: { onApply: () => void }) {
+export function KeyNumbers() {
   const items = [
-    { value: '3', unit: 'дня', label: 'формат', color: 'vibe' },
+    { value: '6', unit: 'лет', label: 'крутых успехов', color: 'pink' },
+    { value: '3', unit: 'дня', label: 'Продолжительность мероприятия', color: 'vibe' },
     { value: '~80', unit: 'человек', label: 'участники', color: 'lime' },
-    { value: '10–12', unit: 'команд', label: 'по 6–7 человек', color: 'cyan' },
-    { value: 'TBD', unit: 'призовой фонд', label: 'скоро', color: 'pink' },
+    { value: '9', unit: 'воркшопов', label: 'от опытных коллег', color: 'cyan' },
   ] as const
 
   const accentColor = (c: string) => {
@@ -52,59 +52,13 @@ export function KeyNumbers({ onApply }: { onApply: () => void }) {
             </div>
           ))}
         </div>
-
-        <p className="mt-8 font-mono text-xs text-paper/40 max-w-2xl">
-          {/* meta detail about prize fund TBD */}
-          * Призовой фонд за лучший проект по итогам презентаций. Детали — позже.
-        </p>
       </div>
     </section>
   )
 }
 
 /* ============================================================
-   Format — explanation of the short-hackathon corporate format
-   ============================================================ */
-export function Format() {
-  return (
-    <section className="relative bg-paper py-20 sm:py-28">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-          <div className="lg:col-span-5">
-            <TagChip variant="vibe">/format</TagChip>
-            <h2 className="mt-5 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-ink leading-[1.05]">
-              Корпоратив в формате{' '}
-              <span className="text-vibe">короткого хакатона</span>
-            </h2>
-          </div>
-
-          <div className="lg:col-span-7 lg:pt-3">
-            <p className="font-sans text-lg sm:text-xl text-ink/80 leading-relaxed">
-              Мы делимся на команды по 6–7 человек и за три дня проходим путь
-              от онбординга до демо и вечернего костра. Вместо шаблонных
-              активностей — живой процесс, где работа и отдых переплетаются.
-            </p>
-            <p className="mt-5 font-sans text-base sm:text-lg text-ink/60 leading-relaxed">
-              Это про сплочение через общее дело, а не через скучные сценарные игры.
-              Команды формируются заранее — с первого взгляда понятно, что здесь
-              удобно работать вместе.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-2">
-              <SlashPill variant="cyan">/Connect</SlashPill>
-              <SlashPill variant="vibe">/CREATE</SlashPill>
-              <SlashPill variant="lime">/VIBE</SlashPill>
-              <SlashPill variant="pink">/Chill</SlashPill>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ============================================================
-   WhatWillBe — 4-card grid: Хакатон, Стендап, Музыка, Костёр
+   WhatWillBe — key activities
    ============================================================ */
 export function WhatWillBe() {
   const items = [
@@ -121,14 +75,14 @@ export function WhatWillBe() {
       icon: GraduationCap,
     },
     {
-      title: 'Демо и JAM',
-      desc: 'Показываем результаты и уходим в вечерину.',
+      title: 'Практика и разборы',
+      desc: 'Разбираем кейсы, обсуждаем подходы и делимся рабочими приёмами.',
       color: 'pink',
       icon: Presentation,
     },
     {
-      title: 'Костёр',
-      desc: 'Вечер первого дня: песни, атмосфера, общение.',
+      title: 'Вечерняя программа',
+      desc: 'Неформальное общение, атмосфера и время познакомиться ближе.',
       color: 'lime',
       icon: Flame,
     },
@@ -155,7 +109,7 @@ export function WhatWillBe() {
             </h2>
           </div>
           <p className="font-mono text-sm text-ink/50 max-w-xs">
-            четыре активности · работа и отдых переплетены
+            мастер-классы, практика и вечерняя программа
           </p>
         </div>
 
@@ -227,22 +181,21 @@ export function ForWhom() {
             <div className="bg-paper/5 border border-paper/10 rounded-2xl p-6 sm:p-8">
               <div className="flex items-baseline gap-4">
                 <span className="font-display font-extrabold text-5xl sm:text-6xl text-cyan leading-none">
-                  10–12
+                  9
                 </span>
                 <div>
-                  <div className="font-display font-semibold text-xl text-paper">команд</div>
+                  <div className="font-display font-semibold text-xl text-paper">мастер-классов</div>
                   <div className="font-mono text-xs text-paper/50 uppercase tracking-wider">
-                    собранных с учётом равной силы и общего вайба
+                    по вайб-кодингу, ИИ и смежным темам
                   </div>
                 </div>
               </div>
             </div>
 
             <p className="font-sans text-lg sm:text-xl text-paper/80 leading-relaxed">
-              Мы формируем группы заранее, чтобы с первого взгляда было понятно —
-              здесь удобно работать вместе. Учитываем равные силы и совместимость
-              по вайбу: весёлые и спокойные, технические и менеджерские — каждый
-              находит своё место.
+              Это встреча для сотрудников с разным уровнем опыта: можно прийти за
+              новыми знаниями, разговорами по делу и живым общением. Внутри важны
+              не формальные роли, а обмен опытом и общий вайб.
             </p>
           </div>
         </div>

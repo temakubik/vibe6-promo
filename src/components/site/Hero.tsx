@@ -1,9 +1,9 @@
 'use client'
 
-import { ArrowUpRight, HelpCircle } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 import { SlashPill, QrMark, PixelCluster } from './Decor'
 
-export function Hero({ onApply }: { onApply: () => void }) {
+export function Hero() {
   return (
     <section
       id="top"
@@ -36,10 +36,10 @@ export function Hero({ onApply }: { onApply: () => void }) {
                   ·  2026  ·
                 </span>
                 <span className="tag-chip bg-paper/10 text-paper border border-paper/15">
-                  bootcamp format
+                  9 workshops · AI
                 </span>
                 <span className="tag-chip bg-paper/10 text-paper border border-paper/15">
-                  location · TBD
+                  location · Les Art Resort
                 </span>
               </div>
 
@@ -47,18 +47,18 @@ export function Hero({ onApply }: { onApply: () => void }) {
               <h1 className="font-display font-extrabold tracking-tight leading-[0.95] text-[14vw] sm:text-[12vw] md:text-[10vw] lg:text-[8.5vw] xl:text-[140px]">
                 <span className="block text-paper">KONSOL</span>
                 <span className="block">
-                  <span className="text-gradient-vibe">FESTIVAL</span>
+                  <span className="text-gradient-vibe">VIBE-6</span>
                 </span>
               </h1>
 
               {/* Subtitle */}
               <p className="mt-6 text-xl sm:text-2xl md:text-3xl font-display font-semibold text-paper leading-tight">
-                Три дня. Команды. Реальные проекты.
+                Три дня, реальное общение, новые знания.
               </p>
 
               {/* Meta line */}
               <p className="mt-3 font-mono text-sm text-paper/60 tracking-wide">
-                2026 · три дня · площадка в формате буткемпа · [город/регион TBD]
+                31 июля - 2 августа · три дня · Les Art Resort · Московская область
               </p>
 
               {/* Slash commands preview */}
@@ -71,22 +71,24 @@ export function Hero({ onApply }: { onApply: () => void }) {
 
               {/* CTA buttons */}
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <button
-                  onClick={onApply}
+                <a
+                  href="https://t.me/+N_X0TPh1rqVkMTBi"
+                  target="_blank"
+                  rel="noreferrer"
                   className="group inline-flex items-center gap-2 bg-vibe hover:bg-vibe/90 text-white font-display font-bold text-base px-6 py-4 rounded-full transition-all hover:translate-y-[-1px]"
                 >
-                  Оставить заявку
+                  Телеграм-чат
                   <ArrowUpRight
                     size={18}
                     className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                   />
-                </button>
+                </a>
                 <a
-                  href="#faq"
+                  href="/guide"
                   className="inline-flex items-center gap-2 bg-transparent border border-paper/20 hover:border-paper/40 text-paper font-display font-semibold text-base px-6 py-4 rounded-full transition-colors"
                 >
-                  <HelpCircle size={18} />
-                  Задать вопрос
+                  <ArrowUpRight size={18} />
+                  База знаний
                 </a>
               </div>
             </div>
@@ -98,7 +100,7 @@ export function Hero({ onApply }: { onApply: () => void }) {
                   <div className="bg-paper/5 border border-paper/10 rounded-3xl p-6 backdrop-blur-sm">
                     <div className="flex items-center justify-between mb-4">
                       <span className="font-mono text-xs text-paper/60 uppercase tracking-widest">
-                        register
+                        community
                       </span>
                       <QrMark variant="lime" className="w-12 h-12" seed={13} />
                     </div>
@@ -112,7 +114,7 @@ export function Hero({ onApply }: { onApply: () => void }) {
                     <div className="mt-4 flex items-center justify-between">
                       <div>
                         <div className="font-display font-bold text-paper text-sm">
-                          scan to apply
+                          telegram chat
                         </div>
                         <div className="font-mono text-xs text-paper/50">
                           #vibe6 · 2026

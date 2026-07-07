@@ -1,19 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SlashPill } from './Decor'
 
 const NAV_LINKS = [
   { href: '#program', label: 'Программа' },
+  { href: '/guide', label: 'База знаний' },
   { href: '#about', label: 'О мероприятии' },
   { href: '#location', label: 'Локация' },
   { href: '#faq', label: 'FAQ' },
 ]
 
-export function Navbar({ onApply }: { onApply: () => void }) {
+export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -59,12 +59,12 @@ export function Navbar({ onApply }: { onApply: () => void }) {
           {/* Right actions */}
           <div className="hidden md:flex items-center gap-2">
             <SlashPill
-              as="button"
+              as="a"
+              href="https://t.me/+N_X0TPh1rqVkMTBi"
               variant="vibe"
-              onClick={onApply}
               className="cursor-pointer"
             >
-              /Подать_заявку
+              /Телеграм_чат
             </SlashPill>
           </div>
 
@@ -94,15 +94,13 @@ export function Navbar({ onApply }: { onApply: () => void }) {
                 {l.label}
               </a>
             ))}
-            <button
-              onClick={() => {
-                setOpen(false)
-                onApply()
-              }}
+            <a
+              href="https://t.me/+N_X0TPh1rqVkMTBi"
+              onClick={() => setOpen(false)}
               className="mt-2 slash-pill slash-pill-vibe justify-center"
             >
-              /Подать_заявку
-            </button>
+              /Телеграм_чат
+            </a>
           </div>
         </div>
       )}
