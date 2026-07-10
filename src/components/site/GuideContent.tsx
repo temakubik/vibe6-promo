@@ -121,10 +121,33 @@ const getForecastSummary = (day: WeatherDay) => {
   return 'Комфортная погода'
 }
 
+type AccommodationPlace = 'moscow' | 'les-art-resort'
+
+const accommodationPlaceMeta: Record<
+  AccommodationPlace,
+  { label: string; variant: 'lime' | 'pink' }
+> = {
+  moscow: {
+    label: 'Москва',
+    variant: 'lime',
+  },
+  'les-art-resort': {
+    label: 'Les Art Resort',
+    variant: 'pink',
+  },
+}
+
 const moscowLookup = (() => {
   const byPerson = new Map<
     string,
-    { room: string; person: string; roommates: string[]; members: string[]; normalized: string }
+    {
+      room: string
+      person: string
+      roommates: string[]
+      members: string[]
+      normalized: string
+      place: AccommodationPlace
+    }
   >()
 
   for (const room of moscowAccommodationRooms) {
@@ -135,6 +158,7 @@ const moscowLookup = (() => {
         roommates: room.members.filter((m) => m !== person),
         members: room.members,
         normalized: normalizeSearch(person),
+        place: 'moscow',
       })
     }
   }
@@ -599,7 +623,12 @@ function MoscowAccommodationSection() {
               {matches.map((row) => (
                 <div key={row.normalized} className="border-b border-ink/8 py-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="font-display text-xl text-ink">{row.person}</div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="font-display text-xl text-ink">{row.person}</div>
+                      <TagChip variant={accommodationPlaceMeta[row.place].variant}>
+                        {accommodationPlaceMeta[row.place].label}
+                      </TagChip>
+                    </div>
                     <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
                       {row.room}
                     </div>
