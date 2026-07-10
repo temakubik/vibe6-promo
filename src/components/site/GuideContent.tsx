@@ -732,6 +732,14 @@ function PackingSection() {
         </div>
 
         <div className="mt-8 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <div className="bg-lime/12 px-4 py-4 text-sm text-ink sm:px-5 sm:text-base">
+              <div className="font-display text-lg text-ink">Важно</div>
+              <p className="mt-2 max-w-2xl text-ink/80">
+                {knowledgeBase.sections.packing.note}
+              </p>
+            </div>
+          </div>
           {knowledgeBase.sections.packing.items.map((item) => (
             <div
               key={item}
@@ -751,10 +759,10 @@ function PackingSection() {
 
 function PrinciplesSection() {
   return (
-    <section className="bg-ink pb-10 text-paper sm:pb-12">
+    <section className="pb-10 sm:pb-12">
       <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
         <div>
-          <TagChip variant="paper">/principles</TagChip>
+          <TagChip variant="ink">/principles</TagChip>
           <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
             {knowledgeBase.sections.principles.title}
           </h2>
@@ -769,13 +777,13 @@ function PrinciplesSection() {
           {knowledgeBase.sections.principles.items.map((item, index) => (
             <article
               key={item.title}
-              className="border-b border-paper/10 py-5 last:border-b-0"
+              className="border-b border-ink/10 py-5 last:border-b-0"
             >
               <div className="font-mono text-xs uppercase tracking-widest text-lime">
                 0{index + 1}
               </div>
               <h3 className="mt-3 font-display text-2xl">{item.title}</h3>
-              <p className="mt-2 text-paper/75">{item.text}</p>
+              <p className="mt-2 text-ink/75">{item.text}</p>
             </article>
           ))}
         </div>
@@ -803,7 +811,7 @@ function DressCodeSection() {
         <img
           src={knowledgeBase.sections.dressCode.image}
           alt="Dress-code Vibe-6"
-          className="mt-8 h-[320px] w-full object-cover"
+          className="mt-8 h-[320px] w-full object-cover object-[center_22%]"
         />
 
         <div className="mt-6 space-y-1">

@@ -7,6 +7,7 @@ export const knowledgeBase = {
     packing: {
       title: 'Что взять с собой',
       image: 'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=photorealistic%20travel%20essentials%20neatly%20arranged%20on%20a%20light%20linen%20bed%2C%20passport%2C%20swimwear%2C%20casual%20clothes%2C%20toiletries%2C%20summer%20weekend%20packing%2C%20editorial%20lifestyle%20photography%2C%20soft%20natural%20light%2C%20realistic&image_size=landscape_16_9',
+      note: 'Ноутбук обязателен: он понадобится для участия в воркшопах.',
       items: [
         'Паспорт — без него не получится заселиться в номер.',
         'Личные вещи и лекарства.',
