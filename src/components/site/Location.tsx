@@ -169,38 +169,3 @@ function resetLocationCardTilt(event: ReactMouseEvent<HTMLDivElement>) {
   card.style.setProperty('--glow-x', '50%')
   card.style.setProperty('--glow-y', '50%')
 }
-
-/* ============================================================
-   Prizes — section about prize fund
-   ============================================================ */
-export function Prizes() {
-  return (
-    <section className="relative bg-paper py-20 sm:py-28 border-t border-ink/5">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-        <div className="bg-vibe text-white rounded-3xl p-8 sm:p-12 lg:p-16 relative overflow-hidden">
-          {/* Decorative big prize text */}
-          <div
-            aria-hidden
-            className="absolute -top-10 -right-10 font-display font-extrabold text-[200px] sm:text-[260px] leading-none text-white/5 pointer-events-none select-none"
-          >
-            TBD
-          </div>
-
-          <div className="relative">
-            <TagChip variant="lime">/prizes</TagChip>
-            <h2 className="mt-5 font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl tracking-tight leading-[1.05] max-w-2xl">
-              Призы и награды
-            </h2>
-            <p className="mt-5 font-sans text-lg sm:text-xl text-white/85 max-w-2xl leading-relaxed">
-              Призовой фонд за лучший проект по итогам презентаций.
-              Команды показывают результат — жюри выбирает победителей.
-            </p>
-            <p className="mt-4 font-mono text-xs text-white/60 uppercase tracking-widest">
-              · детали — позже ·
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}

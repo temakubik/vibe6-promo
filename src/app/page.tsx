@@ -5,7 +5,7 @@ import { Hero } from '@/components/site/Hero'
 import { KeyNumbers, WhatWillBe, ForWhom } from '@/components/site/Sections'
 import { Program } from '@/components/site/Program'
 import { About } from '@/components/site/About'
-import { Location, Prizes } from '@/components/site/Location'
+import { Location } from '@/components/site/Location'
 import { FAQ, FinalCTA, Footer } from '@/components/site/FAQ'
 
 export default function Home() {
@@ -21,7 +21,6 @@ export default function Home() {
         <Program />
         <About />
         <Location />
-        <Prizes />
         <FAQ />
         <FinalCTA />
       </main>

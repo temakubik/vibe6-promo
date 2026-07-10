@@ -95,6 +95,27 @@ export const guideSections = [
     accent: 'vibe',
   },
   {
+    slug: 'places',
+    title: 'Проживание',
+    description: 'Два места проживания: Москва перед выездом и Les Art Resort на площадке.',
+    tag: '/places',
+    accent: 'paper',
+  },
+  {
+    slug: 'weather',
+    title: 'Погода',
+    description: 'Живой прогноз на ближайшие 7 дней для Москвы и Les Art Resort.',
+    tag: '/weather',
+    accent: 'cyan',
+  },
+  {
+    slug: 'moscow-accommodation',
+    title: 'Соседи',
+    description: 'Кто с кем живёт: поиск по имени и состав номеров.',
+    tag: '/moscow',
+    accent: 'lime',
+  },
+  {
     slug: 'packing',
     title: 'Что взять с собой',
     description: 'Короткий список самого важного: документы, вещи, лекарства, репелент и баня.',
@@ -172,5 +193,52 @@ export const scheduleDays = [
       { time: '13:00 - 13:30', title: 'Обед' },
       { time: '14:00', title: 'Выезд из отеля' },
     ],
+  },
+] as const
+
+export const accommodationPlaces = [
+  {
+    id: 'moscow-hotel',
+    period: '30 июля',
+    title: 'Sheraton Palace Moscow Hotel',
+    address: 'Москва, 1-я Тверская-Ямская улица, 19',
+    website: 'https://palacemoscow.ru/',
+    description:
+      'Городской отель в центре Москвы. На официальном сайте его описывают как комфортный отель для бизнес-поездок и отдыха.',
+    notes: [
+      'Завтрак включён.',
+      'Заселение с 14:00.',
+      'Если приехали раньше, багаж можно оставить на хранение.',
+    ],
+  },
+  {
+    id: 'les-art-resort',
+    period: '31 июля - 2 августа',
+    title: 'Les Art Resort',
+    address: 'Московская область, Рузский муниципальный округ, территория База отдыха Прометей, 1',
+    website: 'https://lesresort.ru/',
+    description:
+      'Загородный resort в лесной зоне Подмосковья: номера, SPA, бассейны, рестораны и бары. Это основная площадка мероприятия.',
+    notes: [
+      'Основное место проведения Vibe-6.',
+      'Примерно в часе езды от Москвы.',
+    ],
+  },
+] as const
+
+export const weatherLocations = [
+  {
+    id: 'moscow',
+    title: 'Москва',
+    subtitle: 'Sheraton Palace Moscow Hotel',
+    latitude: 55.7756,
+    longitude: 37.5868,
+  },
+  {
+    id: 'les-art-resort',
+    title: 'Les Art Resort',
+    subtitle: 'Основная площадка мероприятия',
+    latitude: 55.534062,
+    longitude: 36.374645,
   },
 ] as const

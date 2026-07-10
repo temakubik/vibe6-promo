@@ -1,20 +1,162 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, ArrowUpRight, Check, Luggage, Plane, Shirt, Sparkles } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Check,
+  Cloud,
+  CloudDrizzle,
+  CloudFog,
+  CloudLightning,
+  CloudRain,
+  CloudSun,
+  Luggage,
+  Plane,
+  Shirt,
+  Snowflake,
+  Sparkles,
+  Sun,
+} from 'lucide-react'
 import { TagChip } from '@/components/site/Decor'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { guideSections, knowledgeBase, scheduleDays, type GuideSectionSlug } from '@/lib/knowledge-base'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  accommodationPlaces,
+  guideSections,
+  knowledgeBase,
+  scheduleDays,
+  type GuideSectionSlug,
+  weatherLocations,
+} from '@/lib/knowledge-base'
+import { moscowAccommodationNoStay, moscowAccommodationRooms } from '@/lib/moscow-accommodation'
 
 const KNOWLEDGE_COVER =
   'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=photorealistic%20creative%20knowledge%20workspace%2C%20open%20notebook%2C%20sticky%20notes%2C%20laptop%20with%20clean%20interface%2C%20soft%20ambient%20light%2C%20editorial%20desk%20photography%2C%20premium%2C%20minimal%2C%20realistic&image_size=landscape_16_9'
+
+const normalizeSearch = (value: string) =>
+  value
+    .toLowerCase()
+    .replaceAll('ё', 'е')
+    .replace(/\s+/g, ' ')
+    .trim()
+
+const getMapLinks = (query: string) => ({
+  yandex: `https://yandex.ru/maps/?text=${encodeURIComponent(query)}`,
+  google: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
+})
+
+type WeatherForecastResponse = {
+  daily: {
+    time: string[]
+    weather_code: number[]
+    temperature_2m_max: number[]
+    temperature_2m_min: number[]
+    precipitation_probability_max: number[]
+  }
+}
+
+type WeatherDay = {
+  date: string
+  weatherCode: number
+  temperatureMax: number
+  temperatureMin: number
+  precipitationProbability: number
+}
+
+const weatherCodeMeta = (code: number) => {
+  if (code === 0) {
+    return { label: 'Солнечно', Icon: Sun }
+  }
+
+  if ([1, 2].includes(code)) {
+    return { label: 'Малооблачно', Icon: CloudSun }
+  }
+
+  if (code === 3) {
+    return { label: 'Облачно', Icon: Cloud }
+  }
+
+  if ([45, 48].includes(code)) {
+    return { label: 'Туман', Icon: CloudFog }
+  }
+
+  if ([51, 53, 55, 56, 57].includes(code)) {
+    return { label: 'Морось', Icon: CloudDrizzle }
+  }
+
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) {
+    return { label: 'Дождь', Icon: CloudRain }
+  }
+
+  if ([71, 73, 75, 77, 85, 86].includes(code)) {
+    return { label: 'Снег', Icon: Snowflake }
+  }
+
+  if ([95, 96, 99].includes(code)) {
+    return { label: 'Гроза', Icon: CloudLightning }
+  }
+
+  return { label: 'Переменная погода', Icon: Cloud }
+}
+
+const formatWeatherDate = (date: string) =>
+  new Date(`${date}T12:00:00+03:00`).toLocaleDateString('ru-RU', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  })
+
+const getForecastSummary = (day: WeatherDay) => {
+  if (day.precipitationProbability >= 70) return 'Высокая вероятность дождя'
+  if (day.precipitationProbability >= 40) return 'Возможны осадки'
+  if (day.temperatureMax >= 28) return 'Будет жарко'
+  if (day.temperatureMax <= 18) return 'Будет прохладно'
+  return 'Комфортная погода'
+}
+
+const moscowLookup = (() => {
+  const byPerson = new Map<
+    string,
+    { room: string; person: string; roommates: string[]; members: string[]; normalized: string }
+  >()
+
+  for (const room of moscowAccommodationRooms) {
+    for (const person of room.members) {
+      byPerson.set(normalizeSearch(person), {
+        room: room.room,
+        person,
+        roommates: room.members.filter((m) => m !== person),
+        members: room.members,
+        normalized: normalizeSearch(person),
+      })
+    }
+  }
+
+  const noStay = moscowAccommodationNoStay.map((name) => ({
+    person: name,
+    normalized: normalizeSearch(name),
+  }))
+
+  return {
+    people: Array.from(byPerson.values()).sort((a, b) => a.person.localeCompare(b.person, 'ru')),
+    noStay,
+  }
+})()
 
 export function GuideShell({
   currentSlug,
 }: {
   currentSlug?: GuideSectionSlug
 }) {
-  const activeSlug = currentSlug ?? guideSections[0].slug
+  const initialSlug = currentSlug ?? guideSections[0].slug
+  const [activeSlug, setActiveSlug] = useState<GuideSectionSlug>(initialSlug)
 
   return (
     <>
@@ -62,27 +204,55 @@ export function GuideShell({
 
       <section className="py-8 sm:py-10">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-          <Tabs defaultValue={activeSlug} className="gap-6">
-            <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-              <TabsList className="h-auto min-w-max gap-2 rounded-full bg-transparent p-0">
-                {guideSections.map((section) => (
-                  <TabsTrigger
-                    key={section.slug}
-                    value={section.slug}
-                    className="h-auto rounded-full border border-ink/10 bg-white px-4 py-2.5 font-display text-sm text-ink/70 shadow-sm transition-all data-[state=active]:border-vibe data-[state=active]:bg-vibe data-[state=active]:text-white data-[state=active]:shadow-none sm:px-5 sm:text-base"
-                  >
-                    {section.title}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+          <div className="lg:hidden">
+            <div className="pb-2">
+              <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                Раздел базы знаний
+              </div>
+              <Select value={activeSlug} onValueChange={(value) => setActiveSlug(value as GuideSectionSlug)}>
+                <SelectTrigger className="mt-3 h-12 w-full rounded-none border-x-0 border-t-0 border-b border-ink/10 bg-transparent px-0 font-display text-base text-ink shadow-none">
+                  <SelectValue placeholder="Выбери раздел" />
+                </SelectTrigger>
+                <SelectContent>
+                  {guideSections.map((section) => (
+                    <SelectItem key={section.slug} value={section.slug}>
+                      {section.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
+          </div>
 
-            {guideSections.map((section) => (
-              <TabsContent key={section.slug} value={section.slug}>
-                <GuideSectionContent slug={section.slug} />
-              </TabsContent>
-            ))}
-          </Tabs>
+          <div className="mt-6 grid gap-6 lg:mt-0 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
+            <aside className="hidden lg:block lg:sticky lg:top-24">
+              <div className="bg-paper px-5 py-4">
+                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                  Разделы базы знаний
+                </div>
+                <div className="mt-4 border-t border-ink/10">
+                  {guideSections.map((section) => (
+                    <button
+                      key={section.slug}
+                      type="button"
+                      onClick={() => setActiveSlug(section.slug)}
+                      className={`w-full border-b border-ink/10 px-0 py-3 text-left font-display text-[1.35rem] leading-tight transition-colors ${
+                        section.slug === activeSlug
+                          ? 'text-ink'
+                          : 'text-ink/35 hover:text-ink/70'
+                      }`}
+                    >
+                      {section.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </aside>
+
+            <div className="min-w-0">
+              <GuideSectionContent slug={activeSlug} />
+            </div>
+          </div>
         </div>
       </section>
     </>
@@ -93,6 +263,12 @@ export function GuideSectionContent({ slug }: { slug: GuideSectionSlug }) {
   switch (slug) {
     case 'schedule':
       return <ScheduleSection />
+    case 'places':
+      return <PlacesSection />
+    case 'weather':
+      return <WeatherSection />
+    case 'moscow-accommodation':
+      return <MoscowAccommodationSection />
     case 'packing':
       return <PackingSection />
     case 'principles':
@@ -106,11 +282,355 @@ export function GuideSectionContent({ slug }: { slug: GuideSectionSlug }) {
   }
 }
 
-function ScheduleSection() {
+function WeatherSection() {
+  const [activeLocationId, setActiveLocationId] = useState(weatherLocations[0].id)
+  const [state, setState] = useState<{
+    loading: boolean
+    error: boolean
+    data: Record<string, WeatherDay[]>
+  }>({
+    loading: true,
+    error: false,
+    data: {},
+  })
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadWeather = async () => {
+      try {
+        const results = await Promise.all(
+          weatherLocations.map(async (location) => {
+            const url =
+              `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}` +
+              `&longitude=${location.longitude}` +
+              '&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max' +
+              '&forecast_days=7&timezone=Europe%2FMoscow'
+
+            const response = await fetch(url)
+            if (!response.ok) throw new Error('weather_request_failed')
+
+            const json = (await response.json()) as WeatherForecastResponse
+            const days = json.daily.time.map((date, index) => ({
+              date,
+              weatherCode: json.daily.weather_code[index],
+              temperatureMax: Math.round(json.daily.temperature_2m_max[index]),
+              temperatureMin: Math.round(json.daily.temperature_2m_min[index]),
+              precipitationProbability: json.daily.precipitation_probability_max[index],
+            }))
+
+            return [location.id, days] as const
+          })
+        )
+
+        if (cancelled) return
+
+        setState({
+          loading: false,
+          error: false,
+          data: Object.fromEntries(results),
+        })
+      } catch {
+        if (cancelled) return
+        setState({ loading: false, error: true, data: {} })
+      }
+    }
+
+    loadWeather()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const activeLocation = weatherLocations.find((location) => location.id === activeLocationId) ?? weatherLocations[0]
+  const activeForecast = state.data[activeLocation.id] ?? []
+
   return (
-    <section className="border-t border-ink/5 bg-white py-16 sm:py-20">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div className="mb-8">
+          <TagChip variant="cyan">/weather</TagChip>
+          <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
+            Погода
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink/65 sm:text-lg">
+            Живой прогноз на ближайшие 7 дней, чтобы быстро понять: будет жарко, дождливо
+            или комфортно.
+          </p>
+        </div>
+
+        {state.loading ? (
+          <div className="space-y-6 text-ink/60">
+            <div className="border-b border-ink/10 py-6">Загружаем прогноз для Москвы…</div>
+            <div className="border-b border-ink/10 py-6">Загружаем прогноз для Les Art Resort…</div>
+          </div>
+        ) : state.error ? (
+          <div className="border-b border-ink/10 py-6 text-ink/65">
+            Не получилось загрузить прогноз. Попробуйте обновить страницу чуть позже.
+          </div>
+        ) : (
+          <div>
+            <div className="flex flex-wrap gap-2 border-b border-ink/10 pb-4">
+              {weatherLocations.map((location) => (
+                <button
+                  key={location.id}
+                  type="button"
+                  onClick={() => setActiveLocationId(location.id)}
+                  className={`px-4 py-2 font-display text-lg transition-colors ${
+                    location.id === activeLocation.id ? 'text-ink' : 'text-ink/35 hover:text-ink/70'
+                  }`}
+                >
+                  {location.title}
+                </button>
+              ))}
+            </div>
+
+            <article className="pt-8">
+              <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                Ближайшие 7 дней
+              </div>
+              <h3 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
+                {activeLocation.title}
+              </h3>
+              <p className="mt-2 text-base text-ink/65">{activeLocation.subtitle}</p>
+              <a
+                href={`https://open-meteo.com/en/docs?latitude=${activeLocation.latitude}&longitude=${activeLocation.longitude}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex items-center gap-2 border-b border-ink/30 pb-1 text-sm text-ink/65"
+              >
+                Источник прогноза: Open-Meteo
+                <ArrowUpRight size={14} />
+              </a>
+
+              <div className="mt-6 space-y-3">
+                {activeForecast.map((day) => {
+                  const meta = weatherCodeMeta(day.weatherCode)
+                  const summary = getForecastSummary(day)
+
+                  return (
+                    <div
+                      key={`${activeLocation.id}-${day.date}`}
+                      className="grid gap-3 border-b border-ink/8 py-4 sm:grid-cols-[140px_minmax(0,1fr)_110px]"
+                    >
+                      <div className="font-mono text-xs uppercase tracking-wide text-ink/50 sm:pt-1">
+                        {formatWeatherDate(day.date)}
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <meta.Icon size={20} className="mt-0.5 shrink-0 text-cyan" />
+                        <div>
+                          <div className="text-base font-semibold text-ink">{meta.label}</div>
+                          <div className="mt-1 text-sm text-ink/65">{summary}</div>
+                          <div className="mt-1 text-sm text-ink/55">
+                            Осадки: {day.precipitationProbability}%
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-left sm:text-right">
+                        <div className="font-display text-2xl text-ink">{day.temperatureMax}°</div>
+                        <div className="text-sm text-ink/55">ночью {day.temperatureMin}°</div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </article>
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
+function PlacesSection() {
+  return (
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div className="mb-8">
+          <TagChip variant="paper">/places</TagChip>
+          <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
+            Проживание
+          </h2>
+        </div>
+
+        <div className="space-y-10">
+          {accommodationPlaces.map((place) => {
+            const maps = getMapLinks(place.address)
+
+            return (
+              <article key={place.id} className="border-b border-ink/10 pb-10 last:border-b-0 last:pb-0">
+                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                  {place.period}
+                </div>
+                <h3 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
+                  {place.title}
+                </h3>
+                <p className="mt-4 max-w-3xl text-base leading-relaxed text-ink/70 sm:text-lg">
+                  {place.description}
+                </p>
+
+                <div className="mt-6 space-y-4">
+                  <div className="border-b border-ink/8 pb-4">
+                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                      Адрес
+                    </div>
+                    <div className="mt-2 text-base text-ink">{place.address}</div>
+                  </div>
+
+                  <div className="border-b border-ink/8 pb-4">
+                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                      Сайт
+                    </div>
+                    <a
+                      href={place.website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-2 inline-flex items-center gap-2 text-base text-ink underline underline-offset-4"
+                    >
+                      Перейти на сайт
+                      <ArrowUpRight size={16} />
+                    </a>
+                  </div>
+
+                  <div className="border-b border-ink/8 pb-4">
+                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                      Важно
+                    </div>
+                    <ul className="mt-3 space-y-3">
+                      {place.notes.map((note) => (
+                        <li key={note} className="flex items-start gap-3 text-sm text-ink/75 sm:text-base">
+                          <Check size={16} className="mt-1 shrink-0 text-lime" />
+                          <span>{note}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <a
+                    href={maps.yandex}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
+                  >
+                    Яндекс Карты
+                    <ArrowUpRight size={16} />
+                  </a>
+                  <a
+                    href={maps.google}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
+                  >
+                    Google Maps
+                    <ArrowUpRight size={16} />
+                  </a>
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function MoscowAccommodationSection() {
+  const [query, setQuery] = useState('')
+
+  const { matches, noStayMatches } = useMemo(() => {
+    const q = normalizeSearch(query)
+    if (!q) return { matches: [], noStayMatches: [] }
+
+    return {
+      matches: moscowLookup.people.filter((p) => p.normalized.includes(q)),
+      noStayMatches: moscowLookup.noStay.filter((p) => p.normalized.includes(q)),
+    }
+  }, [query])
+
+  return (
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div className="mb-8">
+          <div>
+            <TagChip variant="lime">/moscow</TagChip>
+            <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
+              Соседи
+            </h2>
+          </div>
+        </div>
+
+        <div className="bg-transparent">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+              /search
+            </div>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Например: Иванов или Артём"
+              className="h-12 w-full border-0 border-b border-ink/10 bg-transparent px-0 font-sans text-base text-ink outline-none placeholder:text-ink/35 focus:border-vibe"
+            />
+          </div>
+
+          {!normalizeSearch(query) ? (
+            <div className="mt-6 text-sm text-ink/65">
+              Поиск работает по подстроке: можно вводить имя, фамилию или часть.
+            </div>
+          ) : null}
+
+          {noStayMatches.length ? (
+            <div className="mt-6 space-y-3">
+              {noStayMatches.map((row) => (
+                <div key={row.normalized} className="border-b border-ink/8 py-4">
+                  <div className="font-display text-xl text-ink">{row.person}</div>
+                  <div className="mt-1 text-sm text-ink/60">Проживание в Москве: не нужно</div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {matches.length ? (
+            <div className="mt-6 space-y-3">
+              {matches.map((row) => (
+                <div key={row.normalized} className="border-b border-ink/8 py-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="font-display text-xl text-ink">{row.person}</div>
+                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                      {row.room}
+                    </div>
+                  </div>
+                  <div className="mt-2 text-sm text-ink/70">
+                    {row.roommates.length
+                      ? `Соседи: ${row.roommates.join(', ')}`
+                      : 'Соседи: —'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : normalizeSearch(query) && !noStayMatches.length ? (
+            <div className="mt-6 text-sm text-ink/65">
+              Ничего не найдено.
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ScheduleSection() {
+  const [activeDayId, setActiveDayId] = useState(scheduleDays[0].id)
+  const activeDay = scheduleDays.find((day) => day.id === activeDayId) ?? scheduleDays[0]
+
+  return (
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <TagChip variant="cyan">/schedule</TagChip>
             <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
@@ -122,32 +642,42 @@ function ScheduleSection() {
           </p>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-3">
-          {scheduleDays.map((day) => (
-            <article
-              key={day.id}
-              className="rounded-3xl border border-ink/8 bg-paper p-6 shadow-sm"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <span className={`tag-chip ${accentTag(day.accent)}`}>{day.label}</span>
-                <span className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                  {day.date}
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-3xl">{day.title}</h3>
-              <ul className="mt-6 space-y-3">
-                {day.items.map((item) => (
-                  <li key={`${day.id}-${item.time}`} className="rounded-2xl bg-white px-4 py-3">
-                    <div className="font-mono text-xs uppercase tracking-wide text-ink/50">
-                      {item.time}
-                    </div>
-                    <div className="mt-1 text-base font-semibold text-ink">{item.title}</div>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
+        <div className="-mx-4 overflow-x-auto border-b border-ink/10 px-4 pb-4 sm:mx-0 sm:px-0">
+          <div className="flex min-w-max gap-2">
+            {scheduleDays.map((day) => (
+              <button
+                key={day.id}
+                type="button"
+                onClick={() => setActiveDayId(day.id)}
+                className={`whitespace-nowrap px-4 py-2 font-display text-lg transition-colors ${
+                  day.id === activeDay.id ? 'text-ink' : 'text-ink/35 hover:text-ink/70'
+                }`}
+              >
+                {day.title}
+              </button>
+            ))}
+          </div>
         </div>
+
+        <article className="pt-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <span className={`tag-chip ${accentTag(activeDay.accent)}`}>{activeDay.label}</span>
+            <span className="font-mono text-xs uppercase tracking-widest text-ink/45">
+              {activeDay.date}
+            </span>
+          </div>
+          <h3 className="mt-4 font-display text-3xl">{activeDay.title}</h3>
+          <ul className="mt-6 space-y-3">
+            {activeDay.items.map((item) => (
+              <li key={`${activeDay.id}-${item.time}`} className="border-b border-ink/8 px-0 py-4">
+                <div className="font-mono text-xs uppercase tracking-wide text-ink/50">
+                  {item.time}
+                </div>
+                <div className="mt-1 text-base font-semibold text-ink">{item.title}</div>
+              </li>
+            ))}
+          </ul>
+        </article>
       </div>
     </section>
   )
@@ -155,9 +685,9 @@ function ScheduleSection() {
 
 function PackingSection() {
   return (
-    <section className="border-t border-ink/5 bg-white py-16 sm:py-20">
-      <div className="mx-auto grid max-w-[1280px] gap-8 px-4 sm:px-6 lg:grid-cols-12 lg:px-10">
-        <div className="lg:col-span-5">
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div>
           <TagChip variant="lime">/packing</TagChip>
           <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
             {knowledgeBase.sections.packing.title}
@@ -168,22 +698,22 @@ function PackingSection() {
           <img
             src={knowledgeBase.sections.packing.image}
             alt="Что взять с собой"
-            className="mt-8 h-[280px] w-full rounded-[28px] object-cover"
+            className="mt-8 h-[280px] w-full object-cover"
           />
         </div>
 
-        <div className="lg:col-span-7">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {knowledgeBase.sections.packing.items.map((item) => (
-              <div
-                key={item}
-                className="rounded-3xl border border-ink/8 bg-paper p-5 text-sm leading-relaxed text-ink/80 sm:text-base"
-              >
-                <Luggage size={18} className="mb-4 text-vibe" />
-                {item}
+        <div className="mt-8 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+          {knowledgeBase.sections.packing.items.map((item) => (
+            <div
+              key={item}
+              className="border-b border-ink/8 py-4 text-sm leading-relaxed text-ink/80 sm:text-base"
+            >
+              <div className="flex items-start gap-3">
+                <Luggage size={18} className="mt-0.5 shrink-0 text-vibe" />
+                <span>{item}</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -192,9 +722,9 @@ function PackingSection() {
 
 function PrinciplesSection() {
   return (
-    <section className="border-t border-paper/10 bg-ink py-16 text-paper sm:py-20">
-      <div className="mx-auto grid max-w-[1280px] gap-8 px-4 sm:px-6 lg:grid-cols-12 lg:px-10">
-        <div className="lg:col-span-5">
+    <section className="bg-ink pb-10 text-paper sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div>
           <TagChip variant="paper">/principles</TagChip>
           <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
             {knowledgeBase.sections.principles.title}
@@ -202,15 +732,15 @@ function PrinciplesSection() {
           <img
             src={knowledgeBase.sections.principles.image}
             alt="Принципы Vibe-6"
-            className="mt-8 h-[280px] w-full rounded-[28px] object-cover"
+            className="mt-8 h-[280px] w-full object-cover"
           />
         </div>
 
-        <div className="space-y-4 lg:col-span-7">
+        <div className="mt-8 space-y-4">
           {knowledgeBase.sections.principles.items.map((item, index) => (
             <article
               key={item.title}
-              className="rounded-3xl border border-paper/10 bg-paper/5 p-6"
+              className="border-b border-paper/10 py-5 last:border-b-0"
             >
               <div className="font-mono text-xs uppercase tracking-widest text-lime">
                 0{index + 1}
@@ -227,9 +757,9 @@ function PrinciplesSection() {
 
 function DressCodeSection() {
   return (
-    <section className="border-t border-ink/5 py-16 sm:py-20">
-      <div className="mx-auto grid max-w-[1280px] gap-8 px-4 sm:px-6 lg:grid-cols-12 lg:px-10">
-        <div className="lg:col-span-5">
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div>
           <TagChip variant="pink">/dress_code</TagChip>
           <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
             {knowledgeBase.sections.dressCode.title}
@@ -241,36 +771,34 @@ function DressCodeSection() {
           </div>
         </div>
 
-        <div className="lg:col-span-7">
-          <img
-            src={knowledgeBase.sections.dressCode.image}
-            alt="Dress-code Vibe-6"
-            className="h-[320px] w-full rounded-[28px] object-cover"
-          />
+        <img
+          src={knowledgeBase.sections.dressCode.image}
+          alt="Dress-code Vibe-6"
+          className="mt-8 h-[320px] w-full object-cover"
+        />
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
-            {knowledgeBase.sections.dressCode.items.map((item) => (
-              <div key={item} className="rounded-2xl border border-ink/8 bg-white p-4">
-                <div className="flex items-start gap-3">
-                  <Shirt size={18} className="mt-0.5 shrink-0 text-pink" />
-                  <span className="text-sm leading-relaxed text-ink/80 sm:text-base">{item}</span>
-                </div>
+        <div className="mt-6 space-y-1">
+          {knowledgeBase.sections.dressCode.items.map((item) => (
+            <div key={item} className="border-b border-ink/8 py-4">
+              <div className="flex items-start gap-3">
+                <Shirt size={18} className="mt-0.5 shrink-0 text-pink" />
+                <span className="text-sm leading-relaxed text-ink/80 sm:text-base">{item}</span>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          <div className="mt-6 rounded-3xl border border-pink/20 bg-pink/5 p-5">
-            <div className="flex items-start gap-3">
-              <Sparkles size={18} className="mt-0.5 shrink-0 text-pink" />
-              <div>
-                <p className="text-sm font-semibold text-ink sm:text-base">Чего лучше избегать</p>
-                <p className="mt-1 text-sm leading-relaxed text-ink/70 sm:text-base">
-                  {knowledgeBase.sections.dressCode.avoid}
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-ink/70 sm:text-base">
-                  {knowledgeBase.sections.dressCode.outro}
-                </p>
-              </div>
+        <div className="mt-6 bg-pink/8 px-5 py-5">
+          <div className="flex items-start gap-3">
+            <Sparkles size={18} className="mt-0.5 shrink-0 text-pink" />
+            <div>
+              <p className="text-sm font-semibold text-ink sm:text-base">Лучше не выбирать</p>
+              <p className="mt-1 text-sm leading-relaxed text-ink/80 sm:text-base">
+                {knowledgeBase.sections.dressCode.avoid}
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-ink/70 sm:text-base">
+                {knowledgeBase.sections.dressCode.outro}
+              </p>
             </div>
           </div>
         </div>
@@ -281,28 +809,28 @@ function DressCodeSection() {
 
 function FlightDelaySection() {
   return (
-    <section className="border-t border-ink/5 bg-white py-16 sm:py-20">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <TagChip variant="cyan">/flight_delay</TagChip>
             <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
               {knowledgeBase.sections.flight.title}
             </h2>
           </div>
-          <div className="rounded-full border border-ink/8 bg-paper px-4 py-2 font-mono text-xs uppercase tracking-widest text-ink/60">
+          <div className="font-mono text-xs uppercase tracking-widest text-ink/60">
             контакт: {knowledgeBase.sections.flight.contact}
           </div>
         </div>
 
-        <div className="grid gap-5 lg:grid-cols-3">
-          <article className="rounded-3xl border border-ink/8 bg-paper p-6">
+        <div className="space-y-8">
+          <article className="px-0 py-2">
             <Plane size={22} className="text-vibe" />
             <h3 className="mt-4 font-display text-2xl">Сначала напиши Дане</h3>
             <p className="mt-3 text-ink/70">{knowledgeBase.sections.flight.intro}</p>
           </article>
 
-          <article className="rounded-3xl border border-ink/8 bg-paper p-6">
+          <article className="px-0 py-2">
             <h3 className="font-display text-2xl">Если прилетаешь во Внуково</h3>
             <ul className="mt-4 space-y-3">
               {knowledgeBase.sections.flight.vnk.map((item) => (
@@ -314,7 +842,7 @@ function FlightDelaySection() {
             </ul>
           </article>
 
-          <article className="rounded-3xl border border-ink/8 bg-paper p-6">
+          <article className="px-0 py-2">
             <h3 className="font-display text-2xl">Если прилетаешь в Шереметьево или Домодедово</h3>
             <ul className="mt-4 space-y-3">
               {knowledgeBase.sections.flight.svoDme.map((item) => (
@@ -327,11 +855,11 @@ function FlightDelaySection() {
           </article>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-ink/8 bg-ink p-6 text-paper sm:p-8">
+        <div className="mt-8 border-t border-ink/10 pt-8">
           <h3 className="font-display text-3xl">Что сохранить для компенсации</h3>
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {knowledgeBase.sections.flight.reimbursements.map((item) => (
-              <div key={item} className="rounded-2xl border border-paper/10 bg-paper/5 p-4 text-paper/80">
+              <div key={item} className="border-b border-ink/8 py-4 text-ink/80">
                 {item}
               </div>
             ))}
