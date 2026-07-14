@@ -141,36 +141,52 @@ const moscowLookup = (() => {
   const byPerson = new Map<
     string,
     {
-      room: string
       person: string
       roommates: string[]
-      members: string[]
       normalized: string
       place: AccommodationPlace
     }
   >()
+  const noStayByPerson = new Map<
+    string,
+    {
+      person: string
+      normalized: string
+    }
+  >()
 
   for (const room of moscowAccommodationRooms) {
+    if (room.members.length < 2) {
+      for (const person of room.members) {
+        noStayByPerson.set(normalizeSearch(person), {
+          person,
+          normalized: normalizeSearch(person),
+        })
+      }
+
+      continue
+    }
+
     for (const person of room.members) {
       byPerson.set(normalizeSearch(person), {
-        room: room.room,
         person,
         roommates: room.members.filter((m) => m !== person),
-        members: room.members,
         normalized: normalizeSearch(person),
         place: 'moscow',
       })
     }
   }
 
-  const noStay = moscowAccommodationNoStay.map((name) => ({
-    person: name,
-    normalized: normalizeSearch(name),
-  }))
+  for (const name of moscowAccommodationNoStay) {
+    noStayByPerson.set(normalizeSearch(name), {
+      person: name,
+      normalized: normalizeSearch(name),
+    })
+  }
 
   return {
     people: Array.from(byPerson.values()).sort((a, b) => a.person.localeCompare(b.person, 'ru')),
-    noStay,
+    noStay: Array.from(noStayByPerson.values()).sort((a, b) => a.person.localeCompare(b.person, 'ru')),
   }
 })()
 
@@ -612,7 +628,7 @@ function MoscowAccommodationSection() {
               {noStayMatches.map((row) => (
                 <div key={row.normalized} className="border-b border-ink/8 py-4">
                   <div className="font-display text-xl text-ink">{row.person}</div>
-                  <div className="mt-1 text-sm text-ink/60">Проживание в Москве: не нужно</div>
+                  <div className="mt-1 text-sm text-ink/60">Не живет в гостинице</div>
                 </div>
               ))}
             </div>
@@ -622,21 +638,14 @@ function MoscowAccommodationSection() {
             <div className="mt-6 space-y-3">
               {matches.map((row) => (
                 <div key={row.normalized} className="border-b border-ink/8 py-4">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <div className="font-display text-xl text-ink">{row.person}</div>
-                      <TagChip variant={accommodationPlaceMeta[row.place].variant}>
-                        {accommodationPlaceMeta[row.place].label}
-                      </TagChip>
-                    </div>
-                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                      {row.room}
-                    </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <div className="font-display text-xl text-ink">{row.person}</div>
+                    <TagChip variant={accommodationPlaceMeta[row.place].variant}>
+                      {accommodationPlaceMeta[row.place].label}
+                    </TagChip>
                   </div>
                   <div className="mt-2 text-sm text-ink/70">
-                    {row.roommates.length
-                      ? `Соседи: ${row.roommates.join(', ')}`
-                      : 'Соседи: —'}
+                    {`Соседи: ${row.roommates.join(', ')}`}
                   </div>
                 </div>
               ))}
