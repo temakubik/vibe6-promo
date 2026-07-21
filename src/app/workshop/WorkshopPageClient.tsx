@@ -182,9 +182,6 @@ function WorkshopCard({
           <div className="text-[1.4rem] leading-[1.05] tracking-[-0.02em] text-ink sm:text-[1.75rem]">
             {item.title}
           </div>
-          <div className="mt-auto font-mono text-xs uppercase tracking-widest text-ink/70">
-            {item.speaker}
-          </div>
         </div>
       </div>
     </article>
