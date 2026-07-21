@@ -32,10 +32,13 @@ import {
   guideSections,
   knowledgeBase,
   scheduleDays,
+  scheduleNotes,
   type GuideSectionSlug,
   weatherLocations,
 } from '@/lib/knowledge-base'
+import { forestAccommodationEntries } from '@/lib/forest-accommodation'
 import { moscowAccommodationNoStay, moscowAccommodationRooms } from '@/lib/moscow-accommodation'
+import { getWorkshopSlotBySchedule } from '@/lib/workshops'
 
 const KNOWLEDGE_COVER =
   'https://coresg-normal.trae.ai/api/ide/v1/text_to_image?prompt=photorealistic%20creative%20knowledge%20workspace%2C%20open%20notebook%2C%20sticky%20notes%2C%20laptop%20with%20clean%20interface%2C%20soft%20ambient%20light%2C%20editorial%20desk%20photography%2C%20premium%2C%20minimal%2C%20realistic&image_size=landscape_16_9'
@@ -137,57 +140,144 @@ const accommodationPlaceMeta: Record<
   },
 }
 
-const moscowLookup = (() => {
-  const byPerson = new Map<
-    string,
-    {
-      person: string
-      roommates: string[]
-      normalized: string
-      place: AccommodationPlace
+type AccommodationPresence = {
+  place: AccommodationPlace
+  roommates: string[]
+  stay?: string
+  isStaying: boolean
+}
+
+type AccommodationPersonResult = {
+  person: string
+  normalized: string
+  presences: AccommodationPresence[]
+}
+
+const accommodationPlaceOrder: Record<AccommodationPlace, number> = {
+  moscow: 0,
+  'les-art-resort': 1,
+}
+
+const knownAccommodationPeople = Array.from(
+  new Set([
+    ...moscowAccommodationRooms.flatMap((room) => room.members),
+    ...moscowAccommodationNoStay,
+    ...forestAccommodationEntries.map((entry) => entry.person),
+  ])
+)
+
+const resolveKnownAccommodationPerson = (name: string) => {
+  const normalized = normalizeSearch(name)
+  const exactMatch = knownAccommodationPeople.find((person) => normalizeSearch(person) === normalized)
+  if (exactMatch) return exactMatch
+
+  const partialMatches = knownAccommodationPeople.filter((person) => {
+    const candidate = normalizeSearch(person)
+    return candidate.startsWith(`${normalized} `) || normalized.startsWith(`${candidate} `)
+  })
+
+  if (partialMatches.length === 1) {
+    return partialMatches[0]
+  }
+
+  return name
+}
+
+const accommodationLookup = (() => {
+  const byPerson = new Map<string, AccommodationPersonResult>()
+
+  const ensurePerson = (personName: string) => {
+    const person = resolveKnownAccommodationPerson(personName)
+    const normalized = normalizeSearch(person)
+    const existing = byPerson.get(normalized)
+
+    if (existing) {
+      return existing
     }
-  >()
-  const noStayByPerson = new Map<
-    string,
-    {
-      person: string
-      normalized: string
+
+    const created: AccommodationPersonResult = {
+      person,
+      normalized,
+      presences: [],
     }
-  >()
+
+    byPerson.set(normalized, created)
+    return created
+  }
+
+  const upsertPresence = (personName: string, presence: AccommodationPresence) => {
+    const person = ensurePerson(personName)
+    const roommates = Array.from(
+      new Set(
+        presence.roommates
+          .map(resolveKnownAccommodationPerson)
+          .filter((roommate) => normalizeSearch(roommate) !== person.normalized)
+      )
+    )
+
+    const existingPresence = person.presences.find((item) => item.place === presence.place)
+    if (!existingPresence) {
+      person.presences.push({
+        ...presence,
+        roommates,
+      })
+      return
+    }
+
+    existingPresence.roommates = Array.from(new Set([...existingPresence.roommates, ...roommates]))
+    existingPresence.stay = existingPresence.stay ?? presence.stay
+    existingPresence.isStaying = existingPresence.isStaying || presence.isStaying
+  }
 
   for (const room of moscowAccommodationRooms) {
-    if (room.members.length < 2) {
-      for (const person of room.members) {
-        noStayByPerson.set(normalizeSearch(person), {
-          person,
-          normalized: normalizeSearch(person),
+    const members = room.members.map(resolveKnownAccommodationPerson)
+
+    if (members.length < 2) {
+      for (const person of members) {
+        upsertPresence(person, {
+          place: 'moscow',
+          roommates: [],
+          isStaying: false,
         })
       }
 
       continue
     }
 
-    for (const person of room.members) {
-      byPerson.set(normalizeSearch(person), {
-        person,
-        roommates: room.members.filter((m) => m !== person),
-        normalized: normalizeSearch(person),
+    for (const person of members) {
+      upsertPresence(person, {
         place: 'moscow',
+        roommates: members.filter((member) => member !== person),
+        isStaying: true,
       })
     }
   }
 
   for (const name of moscowAccommodationNoStay) {
-    noStayByPerson.set(normalizeSearch(name), {
-      person: name,
-      normalized: normalizeSearch(name),
+    upsertPresence(name, {
+      place: 'moscow',
+      roommates: [],
+      isStaying: false,
     })
   }
 
-  return {
-    people: Array.from(byPerson.values()).sort((a, b) => a.person.localeCompare(b.person, 'ru')),
-    noStay: Array.from(noStayByPerson.values()).sort((a, b) => a.person.localeCompare(b.person, 'ru')),
+  for (const entry of forestAccommodationEntries) {
+    upsertPresence(entry.person, {
+      place: 'les-art-resort',
+      roommates: entry.roommates,
+      stay: entry.stay,
+      isStaying: true,
+    })
   }
+
+  return Array.from(byPerson.values())
+    .map((person) => ({
+      ...person,
+      presences: person.presences.sort(
+        (a, b) => accommodationPlaceOrder[a.place] - accommodationPlaceOrder[b.place]
+      ),
+    }))
+    .sort((a, b) => a.person.localeCompare(b.person, 'ru'))
 })()
 
 export function GuideShell({
@@ -582,14 +672,11 @@ function PlacesSection() {
 function MoscowAccommodationSection() {
   const [query, setQuery] = useState('')
 
-  const { matches, noStayMatches } = useMemo(() => {
+  const matches = useMemo(() => {
     const q = normalizeSearch(query)
-    if (!q) return { matches: [], noStayMatches: [] }
+    if (!q) return []
 
-    return {
-      matches: moscowLookup.people.filter((p) => p.normalized.includes(q)),
-      noStayMatches: moscowLookup.noStay.filter((p) => p.normalized.includes(q)),
-    }
+    return accommodationLookup.filter((person) => person.normalized.includes(q))
   }, [query])
 
   return (
@@ -597,7 +684,7 @@ function MoscowAccommodationSection() {
       <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
         <div className="mb-8">
           <div>
-            <TagChip variant="lime">/moscow</TagChip>
+            <TagChip variant="lime">/neighbors</TagChip>
             <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
               Соседи
             </h2>
@@ -623,34 +710,38 @@ function MoscowAccommodationSection() {
             </div>
           ) : null}
 
-          {noStayMatches.length ? (
-            <div className="mt-6 space-y-3">
-              {noStayMatches.map((row) => (
-                <div key={row.normalized} className="border-b border-ink/8 py-4">
-                  <div className="font-display text-xl text-ink">{row.person}</div>
-                  <div className="mt-1 text-sm text-ink/60">Не живет в гостинице</div>
-                </div>
-              ))}
-            </div>
-          ) : null}
-
           {matches.length ? (
             <div className="mt-6 space-y-3">
               {matches.map((row) => (
                 <div key={row.normalized} className="border-b border-ink/8 py-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="font-display text-xl text-ink">{row.person}</div>
-                    <TagChip variant={accommodationPlaceMeta[row.place].variant}>
-                      {accommodationPlaceMeta[row.place].label}
-                    </TagChip>
-                  </div>
-                  <div className="mt-2 text-sm text-ink/70">
-                    {`Соседи: ${row.roommates.join(', ')}`}
+                  <div className="font-display text-xl text-ink">{row.person}</div>
+                  <div className="mt-3 space-y-3">
+                    {row.presences.map((presence) => (
+                      <div key={`${row.normalized}-${presence.place}`} className="space-y-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <TagChip variant={accommodationPlaceMeta[presence.place].variant}>
+                            {accommodationPlaceMeta[presence.place].label}
+                          </TagChip>
+                          {presence.stay ? (
+                            <div className="font-mono text-xs uppercase tracking-widest text-red-500">
+                              {presence.stay}
+                            </div>
+                          ) : null}
+                        </div>
+                        <div className="text-sm text-ink/70">
+                          {presence.isStaying
+                            ? presence.roommates.length
+                              ? `Соседи: ${presence.roommates.join(', ')}`
+                              : 'Соседи не указаны'
+                            : 'Не живет в гостинице'}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
-          ) : normalizeSearch(query) && !noStayMatches.length ? (
+          ) : normalizeSearch(query) ? (
             <div className="mt-6 text-sm text-ink/65">
               Ничего не найдено.
             </div>
@@ -706,18 +797,107 @@ function ScheduleSection() {
           </div>
           <h3 className="mt-4 font-display text-3xl">{activeDay.title}</h3>
           <ul className="mt-6 space-y-3">
-            {activeDay.items.map((item) => (
-              <li key={`${activeDay.id}-${item.time}`} className="border-b border-ink/8 px-0 py-4">
-                <div className="font-mono text-xs uppercase tracking-wide text-ink/50">
-                  {item.time}
-                </div>
-                <div className="mt-1 text-base font-semibold text-ink">{item.title}</div>
-              </li>
-            ))}
+            {activeDay.items.map((item) => {
+              const workshopSlot = item.title === 'Воркшопы'
+                ? getWorkshopSlotBySchedule(activeDay.date, item.time)
+                : undefined
+
+              return (
+                <li
+                  key={`${activeDay.id}-${item.time}-${item.title}`}
+                  className="border-b border-ink/8 px-0 py-4"
+                >
+                  <div className="font-mono text-xs uppercase tracking-wide text-ink/50">
+                    {item.time}
+                  </div>
+                  <div className="mt-2 flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-6">
+                    <div className="min-w-0 text-base font-semibold text-ink">{item.title}</div>
+                    {item.place ? (
+                      <div className="md:max-w-[42%] md:text-right">
+                        <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                          Место
+                        </div>
+                        <div className="mt-1 text-sm text-ink/70">{item.place}</div>
+                      </div>
+                    ) : null}
+                  </div>
+                  {item.seating ? (
+                    <div className="mt-3 text-sm text-ink/70">
+                      <span className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                        Рассадка
+                      </span>
+                      <div className="mt-1">{item.seating}</div>
+                    </div>
+                  ) : null}
+                  {workshopSlot ? (
+                    <ScheduleWorkshopPreview slot={workshopSlot} />
+                  ) : null}
+                </li>
+              )
+            })}
           </ul>
+
+          <div className="mt-10 bg-ink/5 px-4 py-4 text-sm text-ink sm:px-5 sm:text-base">
+            <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+              Примечания
+            </div>
+            <ul className="mt-3 space-y-3">
+              {scheduleNotes.map((note) => (
+                <li key={note} className="flex items-start gap-3 text-ink/75">
+                  <Check size={16} className="mt-1 shrink-0 text-lime" />
+                  <span>{note}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </article>
       </div>
     </section>
+  )
+}
+
+function ScheduleWorkshopPreview({
+  slot,
+}: {
+  slot: ReturnType<typeof getWorkshopSlotBySchedule>
+}) {
+  if (!slot) return null
+
+  return (
+    <div className="mt-4 rounded-[24px] border border-vibe/12 bg-vibe/5 p-4 sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <TagChip variant="vibe">{slot.slot}</TagChip>
+          <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+            {slot.day} · {slot.time}
+          </div>
+        </div>
+        <Link
+          href={`/workshop?slot=${slot.id}`}
+          className="inline-flex items-center gap-2 border-b border-ink/25 pb-1 text-sm text-ink/70 transition-colors hover:text-ink"
+        >
+          Все детали и отметка
+          <ArrowUpRight size={14} />
+        </Link>
+      </div>
+
+      <div className="mt-4 grid gap-3 lg:grid-cols-3">
+        {slot.items.map((workshop) => (
+          <Link
+            key={workshop.id}
+            href={`/workshop?slot=${slot.id}`}
+            className="rounded-[20px] border border-ink/8 bg-white px-4 py-4 transition-colors hover:border-vibe/25 hover:bg-paper"
+          >
+            <div className="font-mono text-[11px] uppercase tracking-widest text-vibe">
+              {workshop.speaker}
+            </div>
+            <div className="mt-2 text-sm leading-relaxed text-ink/82 sm:text-base">
+              {workshop.title}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   )
 }
 

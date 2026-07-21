@@ -3,15 +3,12 @@
 import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { SlashPill } from './Decor'
 
-const NAV_LINKS = [
-  { href: '#program', label: 'Программа' },
+const QUICK_LINKS = [
+  { href: 'https://t.me/+N_X0TPh1rqVkMTBi', label: 'Телеграм-чат', external: true },
   { href: '/guide', label: 'База знаний' },
-  { href: '#about', label: 'О мероприятии' },
-  { href: '#location', label: 'Локация' },
-  { href: '#faq', label: 'FAQ' },
-]
+  { href: '/workshop', label: 'Workshop' },
+] as const
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -47,41 +44,24 @@ export function Navbar() {
             <span className="font-display text-xs text-lime font-bold tracking-widest">/vibe-6</span>
           </a>
 
-          <nav className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((l) => (
+          <nav className="hidden md:flex items-center gap-2">
+            {QUICK_LINKS.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
+                target={l.external ? '_blank' : undefined}
+                rel={l.external ? 'noreferrer' : undefined}
                 className={cn(
-                  'px-3 py-2 rounded-full text-sm font-medium transition-colors',
+                  'px-3 py-2 text-sm font-medium transition-colors',
                   scrolled
-                    ? 'text-ink/70 hover:text-ink hover:bg-ink/5'
-                    : 'text-paper/80 hover:text-paper hover:bg-paper/10'
+                    ? 'text-ink/70 hover:text-ink'
+                    : 'text-paper/80 hover:text-paper'
                 )}
               >
                 {l.label}
               </a>
             ))}
           </nav>
-
-          <div className="hidden md:flex items-center gap-2">
-            <SlashPill
-              as="a"
-              href="/guide"
-              variant="lime"
-              className="cursor-pointer"
-            >
-              /База_знаний
-            </SlashPill>
-            <SlashPill
-              as="a"
-              href="https://t.me/+N_X0TPh1rqVkMTBi"
-              variant="vibe"
-              className="cursor-pointer"
-            >
-              /Телеграм_чат
-            </SlashPill>
-          </div>
 
           <button
             type="button"
@@ -101,30 +81,18 @@ export function Navbar() {
       {open && (
         <div className="md:hidden bg-paper border-t border-ink/10">
           <div className="mx-auto max-w-[1280px] px-4 py-4 flex flex-col gap-1">
-            {NAV_LINKS.map((l) => (
+            {QUICK_LINKS.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
+                target={l.external ? '_blank' : undefined}
+                rel={l.external ? 'noreferrer' : undefined}
                 onClick={() => setOpen(false)}
-                className="px-3 py-3 rounded-lg text-base font-medium text-ink/80 hover:bg-ink/5"
+                className="px-0 py-3 text-base font-medium text-ink/80"
               >
                 {l.label}
               </a>
             ))}
-            <a
-              href="/guide"
-              onClick={() => setOpen(false)}
-              className="mt-2 slash-pill slash-pill-lime justify-center"
-            >
-              /База_знаний
-            </a>
-            <a
-              href="https://t.me/+N_X0TPh1rqVkMTBi"
-              onClick={() => setOpen(false)}
-              className="mt-2 slash-pill slash-pill-vibe justify-center"
-            >
-              /Телеграм_чат
-            </a>
           </div>
         </div>
       )}

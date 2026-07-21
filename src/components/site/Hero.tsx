@@ -1,176 +1,104 @@
 'use client'
 
 import { ArrowUpRight } from 'lucide-react'
-import { SlashPill, QrMark, PixelCluster } from './Decor'
+
+const QUICK_LINKS = [
+  {
+    href: 'https://t.me/+N_X0TPh1rqVkMTBi',
+    eyebrow: 'telegram',
+    title: 'Телеграм-чат',
+    text: 'Основной чат поездки: объявления, вопросы и быстрый контакт.',
+    external: true,
+  },
+  {
+    href: '/guide',
+    eyebrow: '/guide',
+    title: 'База знаний',
+    text: 'Расписание, проживание, соседи, погода и всё важное перед поездкой.',
+  },
+  {
+    href: '/workshop',
+    eyebrow: '/workshop',
+    title: 'Workshop',
+    text: 'Раздел уже зарезервирован. Скоро здесь появятся детали воркшопов.',
+  },
+] as const
 
 export function Hero() {
   return (
-    <section
-      id="top"
-      className="relative min-h-[100svh] bg-ink text-paper overflow-hidden flex flex-col"
-    >
-      {/* Pixel grid backdrop */}
+    <section id="top" className="relative min-h-[100svh] overflow-hidden bg-ink text-paper">
       <div className="absolute inset-0 bg-pixel-grid opacity-100 pointer-events-none" />
-      {/* Gradient glow */}
       <div
-        className="absolute -top-32 -right-32 w-[600px] h-[600px] rounded-full blur-3xl opacity-40 pointer-events-none"
+        className="absolute -top-32 -right-32 h-[600px] w-[600px] rounded-full blur-3xl opacity-40 pointer-events-none"
         style={{ background: 'radial-gradient(circle, #7B36FF 0%, transparent 70%)' }}
       />
       <div
-        className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full blur-3xl opacity-30 pointer-events-none"
+        className="absolute -bottom-40 -left-40 h-[600px] w-[600px] rounded-full blur-3xl opacity-30 pointer-events-none"
         style={{ background: 'radial-gradient(circle, #95CE17 0%, transparent 70%)' }}
       />
 
-      {/* Top scanline strip */}
-      <div className="relative z-10 h-16" />
+      <div className="relative z-10 flex min-h-[100svh] items-center">
+        <div className="mx-auto w-full max-w-[1280px] px-4 pb-14 pt-28 sm:px-6 sm:pt-32 lg:px-10">
+          <div className="max-w-[980px]">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="tag-chip bg-lime text-ink">2026</span>
+              <span className="tag-chip border border-paper/15 bg-paper/10 text-paper">
+                31 июля - 2 августа
+              </span>
+              <span className="tag-chip border border-paper/15 bg-paper/10 text-paper">
+                Les Art Resort
+              </span>
+            </div>
 
-      {/* Hero content */}
-      <div className="relative z-10 flex-1 flex items-center">
-        <div className="mx-auto max-w-[1280px] w-full px-4 sm:px-6 lg:px-10">
-          <div className="grid lg:grid-cols-12 gap-8 items-center">
-            {/* Left: text */}
-            <div className="lg:col-span-8">
-              {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-2 mb-6">
-                <span className="tag-chip bg-lime text-ink">
-                  ·  2026  ·
-                </span>
-                <span className="tag-chip bg-paper/10 text-paper border border-paper/15">
-                  9 workshops · AI
-                </span>
-                <span className="tag-chip bg-paper/10 text-paper border border-paper/15">
-                  location · Les Art Resort
-                </span>
+            <h1 className="mt-8 font-display text-[14vw] font-extrabold leading-[0.95] tracking-tight sm:text-[12vw] md:text-[10vw] lg:text-[8.5vw] xl:text-[140px]">
+              <span className="block text-paper">Консоль</span>
+              <span className="block text-gradient-vibe">VIBE-6</span>
+            </h1>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:max-w-[780px]">
+              <div>
+                <div className="font-mono text-xs uppercase tracking-widest text-paper/45">Год</div>
+                <div className="mt-2 font-display text-2xl text-paper sm:text-3xl">2026</div>
               </div>
-
-              {/* H1 */}
-              <h1 className="font-display font-extrabold tracking-tight leading-[0.95] text-[14vw] sm:text-[12vw] md:text-[10vw] lg:text-[8.5vw] xl:text-[140px]">
-                <span className="block text-paper">Консоль</span>
-                <span className="block">
-                  <span className="text-gradient-vibe">VIBE-6</span>
-                </span>
-              </h1>
-
-              {/* Subtitle */}
-              <p className="mt-6 text-xl sm:text-2xl md:text-3xl font-display font-semibold text-paper leading-tight">
-                Три дня, реальное общение, новые знания.
-              </p>
-
-              {/* Meta line */}
-              <p className="mt-3 font-mono text-sm text-paper/60 tracking-wide">
-                31 июля - 2 августа · три дня · Les Art Resort · Московская область
-              </p>
-
-              {/* Slash commands preview */}
-              <div className="mt-8 flex flex-wrap gap-2">
-                <SlashPill variant="cyan">/Connect</SlashPill>
-                <SlashPill variant="vibe">/CREATE</SlashPill>
-                <SlashPill variant="lime">/VIBE</SlashPill>
-                <SlashPill variant="pink">/Chill</SlashPill>
-              </div>
-
-              {/* CTA buttons */}
-              <div className="mt-8 flex flex-wrap items-center gap-3">
-                <a
-                  href="https://t.me/+N_X0TPh1rqVkMTBi"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="group inline-flex items-center gap-2 bg-vibe hover:bg-vibe/90 text-white font-display font-bold text-base px-6 py-4 rounded-full transition-all hover:translate-y-[-1px]"
-                >
-                  Телеграм-чат
-                  <ArrowUpRight
-                    size={18}
-                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  />
-                </a>
-                <a
-                  href="/guide"
-                  className="inline-flex items-center gap-2 bg-transparent border border-paper/20 hover:border-paper/40 text-paper font-display font-semibold text-base px-6 py-4 rounded-full transition-colors"
-                >
-                  <ArrowUpRight size={18} />
-                  База знаний
-                </a>
+              <div>
+                <div className="font-mono text-xs uppercase tracking-widest text-paper/45">Локация</div>
+                <div className="mt-2 font-display text-2xl text-paper sm:text-3xl">
+                  Les Art Resort
+                </div>
+                <div className="mt-1 text-paper/55">Московская область</div>
               </div>
             </div>
 
-            {/* Right: decorative cluster */}
-            <div className="hidden lg:flex lg:col-span-4 justify-end">
-              <div className="relative w-full max-w-[320px]">
-                <div className="float-slow">
-                  <div className="bg-paper/5 border border-paper/10 rounded-3xl p-6 backdrop-blur-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-mono text-xs text-paper/60 uppercase tracking-widest">
-                        community
-                      </span>
-                      <QrMark variant="lime" className="w-12 h-12" seed={13} />
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {QUICK_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noreferrer' : undefined}
+                  className="group min-h-[180px] bg-paper/6 px-5 py-5 transition-colors hover:bg-paper/10 sm:px-6 sm:py-6"
+                >
+                  <div className="flex h-full flex-col">
+                    <div className="font-mono text-xs uppercase tracking-widest text-paper/45">
+                      {link.eyebrow}
                     </div>
-                    <div className="bg-ink rounded-2xl p-5 border border-paper/5">
-                      <PixelCluster
-                        variant="mixed"
-                        seed={21}
-                        className="w-full"
+                    <div className="mt-6 flex items-start justify-between gap-4">
+                      <h2 className="font-display text-3xl leading-none text-paper">{link.title}</h2>
+                      <ArrowUpRight
+                        size={20}
+                        className="mt-1 shrink-0 text-lime transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
                       />
                     </div>
-                    <div className="mt-4 flex items-center justify-between">
-                      <div>
-                        <div className="font-display font-bold text-paper text-sm">
-                          telegram chat
-                        </div>
-                        <div className="font-mono text-xs text-paper/50">
-                          #vibe6 · 2026
-                        </div>
-                      </div>
-                      <ArrowUpRight size={20} className="text-lime" />
-                    </div>
+                    <p className="mt-auto pt-8 text-sm leading-relaxed text-paper/70 sm:text-base">
+                      {link.text}
+                    </p>
                   </div>
-                </div>
-              </div>
+                </a>
+              ))}
             </div>
           </div>
         </div>
       </div>
-
-      {/* Ticker at the bottom */}
-      <div className="relative z-10 border-t border-paper/10 bg-ink overflow-hidden">
-        <div className="flex marquee-track whitespace-nowrap py-3">
-          {[...Array(2)].map((_, dup) => (
-            <div key={dup} className="flex items-center gap-6 px-3 font-mono text-sm text-paper/70">
-              <TickerItem text="КОНСОЛЬ / VIBE-6" />
-              <TickerItem text="3 ДНЯ" accent="lime" />
-              <TickerItem text="~80 УЧАСТНИКОВ" />
-              <TickerItem text="9 МАСТЕР-КЛАССОВ" accent="cyan" />
-              <TickerItem text="МАСТЕР-КЛАССЫ + ВЕЧЕРНЯЯ ПРОГРАММА" />
-              <TickerItem text="2026" accent="vibe" />
-              <TickerItem text="/Connect /CREATE /VIBE /Chill" accent="pink" />
-            </div>
-          ))}
-        </div>
-      </div>
     </section>
-  )
-}
-
-function TickerItem({
-  text,
-  accent,
-}: {
-  text: string
-  accent?: 'lime' | 'cyan' | 'vibe' | 'pink'
-}) {
-  const color =
-    accent === 'lime'
-      ? 'text-lime'
-      : accent === 'cyan'
-      ? 'text-cyan'
-      : accent === 'vibe'
-      ? 'text-vibe'
-      : accent === 'pink'
-      ? 'text-pink'
-      : 'text-paper/70'
-  return (
-    <span className={`uppercase tracking-wider font-semibold ${color}`}>
-      {text}
-      <span className="text-paper/30 mx-6">·</span>
-    </span>
   )
 }
