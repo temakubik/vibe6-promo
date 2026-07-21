@@ -876,7 +876,7 @@ function ScheduleWorkshopPreview({
           href={`/workshop?slot=${slot.id}`}
           className="inline-flex items-center gap-2 border-b border-ink/25 pb-1 text-sm text-ink/70 transition-colors hover:text-ink"
         >
-          Все детали и отметка
+          Все детали
           <ArrowUpRight size={14} />
         </Link>
       </div>
