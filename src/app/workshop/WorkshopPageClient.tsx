@@ -1,11 +1,11 @@
 'use client'
 
-import { type FormEvent, useEffect, useState } from 'react'
+import { type CSSProperties, type FormEvent, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUpRight } from 'lucide-react'
 import { TagChip } from '@/components/site/Decor'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { workshopSlots, type WorkshopItem, type WorkshopSlot } from '@/lib/workshops'
@@ -20,7 +20,7 @@ const defaultFormValues = {
 }
 
 type SignupCounts = Record<string, number>
-type SignupStep = 0 | 1 | 2 | 3
+type SignupStep = 0 | 1 | 2 | 3 | 4
 
 function normalizeTelegramUsername(value: string) {
   const trimmedValue = value.replace(/\s+/g, '')
@@ -165,7 +165,7 @@ export default function WorkshopPageClient({
         ...currentCounts,
         ...(payload?.counts ?? {}),
       }))
-      closeSignupDialog()
+      setSignupStep(4)
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Не удалось сохранить запись.')
     } finally {
@@ -175,6 +175,7 @@ export default function WorkshopPageClient({
 
   const currentSelectionStep = signupStep < workshopSlots.length ? workshopSlots[signupStep] : null
   const selectedWorkshopCount = Object.values(formValues.selections).filter(Boolean).length
+  const isSuccessStep = signupStep === 4
 
   return (
     <main className="min-h-screen bg-paper text-ink">
@@ -233,7 +234,7 @@ export default function WorkshopPageClient({
             <Button
               type="button"
               onClick={openSignupDialog}
-              className="h-12 rounded-full bg-[#BBEE54] px-7 text-sm uppercase tracking-[0.12em] text-ink hover:bg-[#a9dd42]"
+              className="cta-pulse-mobile h-12 w-full rounded-full bg-[#BBEE54] px-7 text-sm uppercase tracking-[0.12em] text-ink hover:bg-[#a9dd42] sm:w-auto"
             >
               Зарегистрироваться
             </Button>
@@ -273,13 +274,24 @@ export default function WorkshopPageClient({
 
             {activeSlot ? (
               <section className="border-b border-ink/8 pb-8 last:border-b-0 last:pb-0">
-                <div className="grid gap-4 border-b border-ink/10 pb-5 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="font-mono text-sm uppercase tracking-[0.18em] text-vibe">
-                    {activeSlot.slot}
+                <div className="border-b border-ink/10 pb-5">
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="font-mono text-sm uppercase tracking-[0.18em] text-vibe">
+                      {activeSlot.slot}
+                    </div>
+                    <div className="text-base leading-snug text-ink/72 sm:hidden">
+                      {activeSlot.day} · {activeSlot.time} · {activeSlot.date}
+                    </div>
+                    <div className="hidden font-display text-2xl leading-none sm:block sm:text-3xl">
+                      {activeSlot.day}
+                    </div>
+                    <div className="hidden font-display text-2xl leading-none sm:block sm:text-3xl">
+                      {activeSlot.time}
+                    </div>
+                    <div className="hidden font-display text-2xl leading-none sm:block sm:text-3xl">
+                      {activeSlot.date}
+                    </div>
                   </div>
-                  <div className="font-display text-2xl leading-none sm:text-3xl">{activeSlot.day}</div>
-                  <div className="font-display text-2xl leading-none sm:text-3xl">{activeSlot.time}</div>
-                  <div className="font-display text-2xl leading-none sm:text-3xl">{activeSlot.date}</div>
                 </div>
 
                 <div className="mt-6 grid gap-5 xl:grid-cols-3">
@@ -330,23 +342,23 @@ export default function WorkshopPageClient({
       </section>
 
       <Dialog open={isSignupDialogOpen} onOpenChange={(isOpen) => !isOpen && closeSignupDialog()}>
-        <DialogContent className="overflow-hidden rounded-[32px] border-[4px] border-ink bg-paper p-0 sm:max-w-[560px] [&_[data-slot='dialog-close']]:top-4 [&_[data-slot='dialog-close']]:right-4 [&_[data-slot='dialog-close']]:flex [&_[data-slot='dialog-close']]:h-10 [&_[data-slot='dialog-close']]:w-10 [&_[data-slot='dialog-close']]:items-center [&_[data-slot='dialog-close']]:justify-center [&_[data-slot='dialog-close']]:rounded-full [&_[data-slot='dialog-close']]:border [&_[data-slot='dialog-close']]:border-ink/20 [&_[data-slot='dialog-close']]:bg-paper [&_[data-slot='dialog-close']]:text-ink/75 [&_[data-slot='dialog-close']]:opacity-100 [&_[data-slot='dialog-close']]:shadow-none [&_[data-slot='dialog-close']]:transition-colors [&_[data-slot='dialog-close']]:hover:bg-paper [&_[data-slot='dialog-close']]:hover:text-ink [&_[data-slot='dialog-close']_svg]:size-4">
-          <div className="rounded-t-[28px] border-b-[4px] border-ink bg-[#BBEE54] px-5 py-6 sm:px-6 sm:py-6">
-            <DialogHeader className="gap-3 text-left">
+        <DialogContent className="flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden rounded-[32px] border-[4px] border-ink bg-paper p-0 sm:max-h-[calc(100dvh-2rem)] sm:max-w-[560px] [&_[data-slot='dialog-close']]:top-3 [&_[data-slot='dialog-close']]:right-3 [&_[data-slot='dialog-close']]:flex [&_[data-slot='dialog-close']]:h-10 [&_[data-slot='dialog-close']]:w-10 [&_[data-slot='dialog-close']]:items-center [&_[data-slot='dialog-close']]:justify-center [&_[data-slot='dialog-close']]:rounded-full [&_[data-slot='dialog-close']]:border [&_[data-slot='dialog-close']]:border-ink/20 [&_[data-slot='dialog-close']]:bg-paper [&_[data-slot='dialog-close']]:text-ink/75 [&_[data-slot='dialog-close']]:opacity-100 [&_[data-slot='dialog-close']]:shadow-none [&_[data-slot='dialog-close']]:transition-colors [&_[data-slot='dialog-close']]:hover:bg-paper [&_[data-slot='dialog-close']]:hover:text-ink [&_[data-slot='dialog-close']_svg]:size-4 sm:[&_[data-slot='dialog-close']]:top-4 sm:[&_[data-slot='dialog-close']]:right-4">
+          <div className="rounded-t-[28px] border-b-[4px] border-ink bg-[#BBEE54] px-4 py-4 sm:px-6 sm:py-6">
+            <DialogHeader className="gap-2 text-left sm:gap-3">
               <TagChip variant="lime" className="w-fit self-start">
                 регистрация
               </TagChip>
-              <DialogTitle className="max-w-[420px] font-display text-[1.9rem] leading-[0.92] tracking-[-0.03em] text-balance text-ink sm:text-[2.35rem]">
+              <DialogTitle className="max-w-[360px] font-display text-[1.5rem] leading-[0.94] tracking-[-0.03em] text-balance text-ink sm:max-w-[420px] sm:text-[2.35rem]">
                 Регистрация на воркшопы
               </DialogTitle>
-              <DialogDescription className="max-w-[420px] text-sm leading-relaxed text-ink/70 sm:text-[15px]">
-                Выбирай по одному воркшопу на каждый слот, а контакт оставь на последнем шаге.
-              </DialogDescription>
             </DialogHeader>
           </div>
 
-          <form className="space-y-4 px-5 pb-5 pt-1" onSubmit={handleSignupSubmit}>
-            <div className="grid grid-cols-4 gap-2">
+          <form
+            className="min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-3 px-4 pb-4 pt-1 sm:space-y-4 sm:px-5 sm:pb-5"
+            onSubmit={handleSignupSubmit}
+          >
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
               {[
                 ...workshopSlots.map((slot) => ({
                   key: slot.id,
@@ -361,11 +373,16 @@ export default function WorkshopPageClient({
                     Boolean(formValues.lastName.trim()) &&
                     Boolean(formValues.telegramUsername.trim()),
                 },
+                {
+                  key: 'done',
+                  label: 'Готово',
+                  isDone: isSuccessStep,
+                },
               ].map((step, index) => (
                 <div
                   key={step.key}
                   className={cn(
-                    'rounded-full border px-3 py-2 text-center font-mono text-[11px] uppercase tracking-[0.16em]',
+                    'rounded-full border px-2 py-1.5 text-center font-mono text-[10px] uppercase tracking-[0.12em] sm:px-3 sm:py-2 sm:text-[11px] sm:tracking-[0.16em]',
                     index === signupStep
                       ? 'border-ink bg-ink text-paper'
                       : step.isDone
@@ -378,18 +395,59 @@ export default function WorkshopPageClient({
               ))}
             </div>
 
-            {currentSelectionStep ? (
-              <div className="space-y-3">
-                <div className="rounded-2xl border-2 border-ink/10 bg-white px-4 py-3">
-                  <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
+            {isSuccessStep ? (
+              <div className="relative overflow-hidden rounded-[24px] border-[4px] border-ink bg-[#BBEE54] px-4 py-8 text-center sm:px-6 sm:py-10">
+                <div className="pointer-events-none absolute inset-0 overflow-hidden">
+                  {Array.from({ length: 18 }).map((_, index) => (
+                    <span
+                      key={index}
+                      className={cn(
+                        'success-confetti-piece absolute top-[-12%] h-3 w-2 rounded-full',
+                        index % 4 === 0 && 'bg-vibe',
+                        index % 4 === 1 && 'bg-pink',
+                        index % 4 === 2 && 'bg-cyan',
+                        index % 4 === 3 && 'bg-white'
+                      )}
+                      style={
+                        {
+                          left: `${6 + index * 5.2}%`,
+                          animationDelay: `${(index % 6) * 0.14}s`,
+                          animationDuration: `${2.8 + (index % 5) * 0.22}s`,
+                          transform: `rotate(${index * 21}deg)`,
+                        } as CSSProperties
+                      }
+                    />
+                  ))}
+                </div>
+
+                <div className="relative">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border-[4px] border-ink bg-white text-[1.6rem] shadow-[0_10px_30px_rgba(16,15,14,0.12)]">
+                    ✦
+                  </div>
+                  <div className="mt-5 font-mono text-[11px] uppercase tracking-[0.16em] text-ink/60">
+                    Готово
+                  </div>
+                  <h3 className="mt-3 font-display text-[2rem] leading-[0.92] tracking-[-0.03em] text-ink sm:text-[2.5rem]">
+                    Заявка отправлена
+                  </h3>
+                  <p className="mx-auto mt-3 max-w-[320px] text-sm leading-relaxed text-ink/70 sm:text-base">
+                    Мы сохранили твой выбор по слотам. Если планы изменятся, можно отправить форму
+                    ещё раз и обновить запись.
+                  </p>
+                </div>
+              </div>
+            ) : currentSelectionStep ? (
+              <div className="space-y-2.5 sm:space-y-3">
+                <div className="rounded-2xl border-2 border-ink/10 bg-white px-3 py-2.5 sm:px-4 sm:py-3">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink/55 sm:text-[11px] sm:tracking-[0.16em]">
                     {currentSelectionStep.slot} · {currentSelectionStep.day} · {currentSelectionStep.time}
                   </div>
-                  <div className="mt-2 text-sm text-ink/65">
+                  <div className="mt-1 text-xs text-ink/65 sm:mt-2 sm:text-sm">
                     Выбери один воркшоп, затем откроется следующий слот.
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5 sm:space-y-3">
                   {currentSelectionStep.items.map((item) => {
                     const isActive = formValues.selections[currentSelectionStep.id] === item.id
 
@@ -399,19 +457,16 @@ export default function WorkshopPageClient({
                         type="button"
                         onClick={() => handleSlotSelection(currentSelectionStep.id, item.id)}
                         className={cn(
-                          'w-full rounded-[24px] border-[3px] bg-white p-4 text-left transition-colors',
+                          'w-full rounded-[22px] border-[3px] bg-white px-3 py-3 text-left transition-colors sm:rounded-[24px] sm:p-4',
                           isActive
                             ? 'border-vibe bg-vibe/5 shadow-[0_0_0_4px_rgba(123,54,255,0.12)]'
                             : 'border-ink/10 hover:border-vibe/65 hover:bg-vibe/5'
                         )}
                       >
-                        <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/45">
-                          Автор
-                        </div>
-                        <div className="mt-1 font-display text-xl leading-[0.95] text-ink">
+                        <div className="font-display text-lg leading-[0.95] text-ink sm:text-xl">
                           {item.speaker}
                         </div>
-                        <div className="mt-4 text-base leading-snug text-ink">
+                        <div className="mt-2 text-sm leading-snug text-ink sm:mt-3 sm:text-[15px]">
                           {item.title}
                         </div>
                       </button>
@@ -420,13 +475,13 @@ export default function WorkshopPageClient({
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="rounded-[24px] border-2 border-vibe bg-white p-4 shadow-[0_0_0_4px_rgba(123,54,255,0.08)]">
-                  <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="rounded-[22px] border-2 border-vibe bg-white p-3.5 shadow-[0_0_0_4px_rgba(123,54,255,0.08)] sm:rounded-[24px] sm:p-4">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink/55 sm:text-[11px] sm:tracking-[0.16em]">
                     Ваши данные
                   </div>
 
-                  <div className="mt-4 space-y-4">
+                  <div className="mt-3 space-y-3 sm:mt-4 sm:space-y-4">
                     <div>
                       <label
                         htmlFor="workshop-signup-first-name"
@@ -444,7 +499,7 @@ export default function WorkshopPageClient({
                           }))
                         }
                         placeholder="Как тебя зовут"
-                        className="h-12 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-base text-ink focus-visible:border-vibe"
+                        className="h-11 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-sm text-ink focus-visible:border-vibe sm:h-12 sm:text-base"
                       />
                     </div>
 
@@ -465,7 +520,7 @@ export default function WorkshopPageClient({
                           }))
                         }
                         placeholder="Твоя фамилия"
-                        className="h-12 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-base text-ink focus-visible:border-vibe"
+                        className="h-11 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-sm text-ink focus-visible:border-vibe sm:h-12 sm:text-base"
                       />
                     </div>
 
@@ -486,17 +541,17 @@ export default function WorkshopPageClient({
                           }))
                         }
                         placeholder="@username"
-                        className="h-12 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-base text-ink focus-visible:border-vibe"
+                        className="h-11 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-sm text-ink focus-visible:border-vibe sm:h-12 sm:text-base"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border-2 border-ink/10 bg-white p-4">
-                  <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
+                <div className="rounded-[22px] border-2 border-ink/10 bg-white p-3.5 sm:rounded-[24px] sm:p-4">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink/55 sm:text-[11px] sm:tracking-[0.16em]">
                     Вы выбрали
                   </div>
-                  <div className="mt-3 space-y-3">
+                  <div className="mt-2.5 space-y-2.5 sm:mt-3 sm:space-y-3">
                     {workshopSlots.map((slot) => {
                       const selectedItem = slot.items.find((item) => item.id === formValues.selections[slot.id])
 
@@ -505,12 +560,12 @@ export default function WorkshopPageClient({
                           key={slot.id}
                           type="button"
                           onClick={() => setSignupStep(workshopSlots.findIndex((item) => item.id === slot.id) as SignupStep)}
-                          className="w-full rounded-2xl border-2 border-vibe/45 bg-vibe/5 px-4 py-3 text-left transition-colors hover:border-vibe hover:bg-vibe/10"
+                          className="w-full rounded-2xl border-2 border-vibe/45 bg-vibe/5 px-3 py-2.5 text-left transition-colors hover:border-vibe hover:bg-vibe/10 sm:px-4 sm:py-3"
                         >
-                          <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-vibe">
+                          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-vibe sm:text-[11px] sm:tracking-[0.16em]">
                             {slot.slot}
                           </div>
-                          <div className="mt-1 text-sm text-ink">
+                          <div className="mt-1 text-xs text-ink sm:text-sm">
                             {selectedItem ? selectedItem.title : 'Не выбрано'}
                           </div>
                         </button>
@@ -524,42 +579,48 @@ export default function WorkshopPageClient({
               </div>
             )}
 
-            {submitError ? (
-              <p className="text-sm text-red-600">{submitError}</p>
-            ) : (
-              <p className="text-sm text-ink/55">
-                Сохраняем одну актуальную запись на пользователя по Telegram.
-              </p>
-            )}
+            {!isSuccessStep && submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
 
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
-              {signupStep > 0 ? (
+            <div className="flex flex-col gap-2 pt-1 sm:flex-row sm:justify-end sm:gap-3 sm:pt-2">
+              {signupStep > 0 && !isSuccessStep ? (
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setSignupStep((signupStep - 1) as SignupStep)}
-                  className="h-12 rounded-full border-2 border-ink px-6 text-sm uppercase tracking-[0.12em] text-ink"
+                  className="h-11 rounded-full border-2 border-ink px-5 text-xs uppercase tracking-[0.1em] text-ink sm:h-12 sm:px-6 sm:text-sm sm:tracking-[0.12em]"
                 >
                   Назад
                 </Button>
               ) : null}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={closeSignupDialog}
-                className="h-12 rounded-full border-2 border-ink px-6 text-sm uppercase tracking-[0.12em] text-ink"
-              >
-                Отмена
-              </Button>
-              {signupStep === 3 ? (
+              {isSuccessStep ? (
                 <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="h-12 rounded-full bg-ink px-6 text-sm uppercase tracking-[0.12em] text-paper hover:bg-ink/90"
+                  type="button"
+                  onClick={closeSignupDialog}
+                  className="h-11 rounded-full bg-ink px-5 text-xs uppercase tracking-[0.1em] text-paper hover:bg-ink/90 sm:h-12 sm:px-6 sm:text-sm sm:tracking-[0.12em]"
                 >
-                  {isSubmitting ? 'Сохраняем...' : 'Записаться'}
+                  Готово
                 </Button>
-              ) : null}
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={closeSignupDialog}
+                    className="h-11 rounded-full border-2 border-ink px-5 text-xs uppercase tracking-[0.1em] text-ink sm:h-12 sm:px-6 sm:text-sm sm:tracking-[0.12em]"
+                  >
+                    Отмена
+                  </Button>
+                  {signupStep === 3 ? (
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="h-11 rounded-full bg-ink px-5 text-xs uppercase tracking-[0.1em] text-paper hover:bg-ink/90 sm:h-12 sm:px-6 sm:text-sm sm:tracking-[0.12em]"
+                    >
+                      {isSubmitting ? 'Сохраняем...' : 'Записаться'}
+                    </Button>
+                  ) : null}
+                </>
+              )}
             </div>
           </form>
         </DialogContent>

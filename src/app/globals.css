@@ -238,6 +238,49 @@
 .slash-pill-paper { background: #F6F5FD; color: #100F0E; }
 .slash-pill-ink   { background: #100F0E; color: #F6F5FD; }
 
+@keyframes ctaPulseMobile {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(149, 206, 23, 0.3);
+  }
+  50% {
+    transform: scale(1.015);
+    box-shadow: 0 0 0 10px rgba(149, 206, 23, 0);
+  }
+}
+
+.cta-pulse-mobile {
+  animation: ctaPulseMobile 2.2s ease-out infinite;
+}
+
+@media (min-width: 640px) {
+  .cta-pulse-mobile {
+    animation: none;
+  }
+}
+
+@keyframes successConfettiFall {
+  0% {
+    transform: translate3d(0, -18px, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 280px, 0) rotate(260deg);
+    opacity: 0;
+  }
+}
+
+.success-confetti-piece {
+  animation-name: successConfettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
 /* Tag chip (label) */
 .tag-chip {
   display: inline-flex;
