@@ -66,7 +66,7 @@ async function fetchNocodbJson<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export function normalizeTelegramUsername(value: string) {
-  const normalizedValue = value.trim().replace(/\s+/g, '').replace(/^@+/, '')
+  const normalizedValue = value.trim().replace(/\s+/g, '').toLowerCase().replace(/^@+/, '')
   return normalizedValue ? `@${normalizedValue}` : ''
 }
 
@@ -212,6 +212,15 @@ async function listWorkshopSignupRecords(where?: string) {
   return payload.list ?? []
 }
 
+async function findWorkshopSignupRecordByTelegram(telegramUsername: string) {
+  const normalizedTelegramUsername = normalizeTelegramUsername(telegramUsername)
+  const records = await listWorkshopSignupRecords()
+
+  return records.find(
+    (record) => normalizeTelegramUsername(record.Telegram ?? '') === normalizedTelegramUsername
+  )
+}
+
 export async function upsertWorkshopSignup(input: UpsertWorkshopSignupInput) {
   const url = `${nocodbConfig.apiUrl}/api/v2/tables/${nocodbConfig.tableId}/records`
   const normalizedTelegramUsername = normalizeTelegramUsername(input.telegramUsername)
@@ -220,10 +229,7 @@ export async function upsertWorkshopSignup(input: UpsertWorkshopSignupInput) {
   const serializedSlotIds = JSON.stringify(
     Object.keys(input.selections).filter((slotId) => input.selections[slotId])
   )
-  const existingRecords = await listWorkshopSignupRecords(
-    `(Telegram,eq,${normalizedTelegramUsername})`
-  )
-  const existingRecord = existingRecords[0]
+  const existingRecord = await findWorkshopSignupRecordByTelegram(normalizedTelegramUsername)
 
   const payload = {
     Title: input.fullName.trim(),

@@ -23,7 +23,7 @@ type SignupCounts = Record<string, number>
 type SignupStep = 0 | 1 | 2 | 3 | 4
 
 function normalizeTelegramUsername(value: string) {
-  const trimmedValue = value.replace(/\s+/g, '')
+  const trimmedValue = value.replace(/\s+/g, '').toLowerCase()
   const strippedValue = trimmedValue.replace(/^@+/, '')
 
   return strippedValue ? `@${strippedValue}` : ''
