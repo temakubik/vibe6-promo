@@ -11,7 +11,6 @@ import { cn } from '@/lib/utils'
 import { workshopSlots, type WorkshopItem, type WorkshopSlot } from '@/lib/workshops'
 
 const totalWorkshops = workshopSlots.reduce((sum, slot) => sum + slot.items.length, 0)
-const fallbackSlotId = workshopSlots[0]?.id ?? ''
 const defaultFormValues = {
   firstName: '',
   lastName: '',
@@ -29,12 +28,7 @@ function normalizeTelegramUsername(value: string) {
   return strippedValue ? `@${strippedValue}` : ''
 }
 
-export default function WorkshopPageClient({
-  initialSlotId = fallbackSlotId,
-}: {
-  initialSlotId?: string
-}) {
-  const [activeSlotId, setActiveSlotId] = useState(initialSlotId)
+export default function WorkshopPageClient() {
   const [signupCounts, setSignupCounts] = useState<SignupCounts>({})
   const [countsLoading, setCountsLoading] = useState(true)
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false)
@@ -42,7 +36,6 @@ export default function WorkshopPageClient({
   const [formValues, setFormValues] = useState(defaultFormValues)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const activeSlot = workshopSlots.find((slot) => slot.id === activeSlotId) ?? workshopSlots[0]
 
   useEffect(() => {
     let cancelled = false
@@ -223,7 +216,7 @@ export default function WorkshopPageClient({
             </p>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-3 lg:max-w-[860px]">
+          <div className="mt-10 grid grid-cols-3 gap-2 sm:gap-4 lg:max-w-[860px]">
             <HeroStat value={`${totalWorkshops}`} label="воркшопов" />
             <HeroStat value={`${workshopSlots.length}`} label="слота" />
             <HeroStat value="2" label="дня программы" />
@@ -244,57 +237,25 @@ export default function WorkshopPageClient({
       <section className="py-10 sm:py-12">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
           <div className="space-y-8">
-            <section className="border-b border-ink/8 pb-8">
-              <div>
-                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                  Слоты
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {workshopSlots.map((slot) => (
-                    <button
-                      key={slot.id}
-                      type="button"
-                      onClick={() => setActiveSlotId(slot.id)}
-                      className={`rounded-full border px-4 py-2 font-display text-lg transition-colors ${
-                        slot.id === activeSlot?.id
-                          ? 'border-vibe bg-vibe text-white'
-                          : 'border-ink/10 bg-white text-ink hover:border-ink/25'
-                      }`}
-                    >
-                      {slot.slot.replace('Слот ', '')}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-4 text-sm text-ink/55">
-                  На карточке показываем только количество регистраций, без имён.
-                </p>
-              </div>
-            </section>
-
-            {activeSlot ? (
-              <section className="border-b border-ink/8 pb-8 last:border-b-0 last:pb-0">
-                <div className="border-b border-ink/10 pb-5">
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="font-mono text-sm uppercase tracking-[0.18em] text-vibe">
-                      {activeSlot.slot}
+            {workshopSlots.map((slot) => (
+              <section key={slot.id} className="border-b border-ink/8 pb-8 last:border-b-0 last:pb-0">
+                <div className="border-b border-ink/10 pb-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div className="font-mono text-xs uppercase tracking-[0.18em] text-vibe sm:text-sm">
+                      {slot.slot}
                     </div>
-                    <div className="text-base leading-snug text-ink/72 sm:hidden">
-                      {activeSlot.day} · {activeSlot.time} · {activeSlot.date}
-                    </div>
-                    <div className="hidden font-display text-2xl leading-none sm:block sm:text-3xl">
-                      {activeSlot.day}
-                    </div>
-                    <div className="hidden font-display text-2xl leading-none sm:block sm:text-3xl">
-                      {activeSlot.time}
-                    </div>
-                    <div className="hidden font-display text-2xl leading-none sm:block sm:text-3xl">
-                      {activeSlot.date}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-display text-xl leading-none text-ink sm:gap-x-5 sm:text-2xl lg:text-3xl">
+                      <span>{slot.day}</span>
+                      <span className="text-ink/25" aria-hidden="true">·</span>
+                      <span>{slot.date}</span>
+                      <span className="text-ink/25" aria-hidden="true">·</span>
+                      <span>{slot.time}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 grid gap-5 xl:grid-cols-3">
-                  {activeSlot.items.map((item) => (
+                <div className="mt-6 space-y-5">
+                  {slot.items.map((item) => (
                     <WorkshopCard
                       key={item.id}
                       item={item}
@@ -304,7 +265,7 @@ export default function WorkshopPageClient({
                   ))}
                 </div>
               </section>
-            ) : null}
+            ))}
           </div>
 
           <div className="mt-12 flex flex-wrap gap-3">
@@ -601,9 +562,11 @@ export default function WorkshopPageClient({
 
 function HeroStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="rounded-[24px] border border-paper/12 bg-paper/6 px-5 py-5">
-      <div className="font-display text-4xl leading-none text-paper">{value}</div>
-      <div className="mt-2 font-mono text-xs uppercase tracking-widest text-paper/50">{label}</div>
+    <div className="rounded-[18px] border border-paper/12 bg-paper/6 px-3 py-4 sm:rounded-[24px] sm:px-5 sm:py-5">
+      <div className="font-display text-3xl leading-none text-paper sm:text-4xl">{value}</div>
+      <div className="mt-2 font-mono text-[10px] uppercase leading-tight tracking-[0.12em] text-paper/60 sm:text-xs sm:tracking-widest">
+        {label}
+      </div>
     </div>
   )
 }
@@ -620,40 +583,62 @@ function WorkshopCard({
   const initials = getInitials(item.speaker)
 
   return (
-    <article className="flex h-full w-full flex-col overflow-hidden rounded-[28px] border-[4px] border-ink bg-paper text-left shadow-[0_10px_30px_rgba(16,15,14,0.06)]">
-      <div className="border-b-[4px] border-ink bg-white px-4 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-pink text-lg font-semibold text-paper">
-            {initials}
-          </div>
-          <div className="font-display text-2xl leading-[0.95] text-ink sm:text-3xl">
-            {item.speaker}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-1 items-stretch bg-[#BBEE54] px-4 py-4">
-        <div className="flex w-full flex-col gap-4">
-          <div className="text-[1.4rem] leading-[1.05] tracking-[-0.02em] text-ink sm:text-[1.75rem]">
-            {item.title}
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t-[4px] border-ink bg-white px-4 py-3">
-        <div>
-          <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink/45">
-              Зарегистрировано
+    <article className="overflow-hidden rounded-[24px] border-[3px] border-ink bg-[#BBEE54] text-left shadow-[0_8px_24px_rgba(16,15,14,0.06)]">
+      <div className="px-4 py-4 sm:px-6 sm:py-5">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:gap-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-pink text-base font-semibold text-paper sm:h-14 sm:w-14 sm:rounded-2xl sm:text-lg">
+              {initials}
             </div>
-            <div className="mt-2 font-display text-3xl leading-none text-ink">
+            <div className="min-w-0">
+              <div className="text-base font-semibold leading-tight text-ink sm:text-lg">
+                {item.speaker}
+              </div>
+              <div className="mt-1 font-mono text-xs uppercase tracking-[0.14em] text-ink/60">
+                Спикер
+              </div>
+            </div>
+          </div>
+
+          <div className="flex min-h-12 shrink-0 items-center rounded-full border-[3px] border-ink bg-white px-3 py-2 sm:min-h-14 sm:px-4">
+            <span className="font-display text-2xl leading-none text-ink sm:text-[1.75rem]">
               {countsLoading ? '...' : registrationsCount}
-            </div>
+            </span>
+            <span className="ml-2 max-w-[68px] text-[11px] leading-tight text-ink/65 sm:text-xs">
+              {countsLoading ? 'регистраций' : getParticipantLabel(registrationsCount)}
+            </span>
           </div>
         </div>
+
+        <h2 className="mt-4 max-w-5xl text-[1.35rem] font-semibold leading-[1.08] tracking-[-0.02em] text-ink sm:mt-5 sm:text-[1.65rem]">
+          {item.title}
+        </h2>
+
+        <p className="mt-3 max-w-5xl text-[15px] font-normal leading-[1.5] text-ink/80 sm:text-base">
+          {item.description}
+        </p>
       </div>
     </article>
   )
+}
+
+function getParticipantLabel(count: number) {
+  const lastTwoDigits = count % 100
+  const lastDigit = count % 10
+
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
+    return 'участников'
+  }
+
+  if (lastDigit === 1) {
+    return 'участник'
+  }
+
+  if (lastDigit >= 2 && lastDigit <= 4) {
+    return 'участника'
+  }
+
+  return 'участников'
 }
 
 function getInitials(name: string) {
