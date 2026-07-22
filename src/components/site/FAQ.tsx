@@ -225,6 +225,14 @@ export function Footer() {
                   Телеграм-чат
                 </a>
               </li>
+              <li>
+                <a
+                  href="/admin"
+                  className="font-sans text-sm text-paper/80 hover:text-cyan transition-colors"
+                >
+                  Вход в админку
+                </a>
+              </li>
             </ul>
           </div>
         </div>

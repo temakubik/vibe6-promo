@@ -1,13 +1,33 @@
 'use client'
 
-import { useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUpRight } from 'lucide-react'
 import { TagChip } from '@/components/site/Decor'
-import { workshopSlots, type WorkshopItem } from '@/lib/workshops'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+import { workshopSlots, type WorkshopItem, type WorkshopSlot } from '@/lib/workshops'
 
 const totalWorkshops = workshopSlots.reduce((sum, slot) => sum + slot.items.length, 0)
 const fallbackSlotId = workshopSlots[0]?.id ?? ''
+const defaultFormValues = {
+  firstName: '',
+  lastName: '',
+  telegramUsername: '',
+  selections: Object.fromEntries(workshopSlots.map((slot) => [slot.id, ''])) as Record<string, string>,
+}
+
+type SignupCounts = Record<string, number>
+type SignupStep = 0 | 1 | 2 | 3
+
+function normalizeTelegramUsername(value: string) {
+  const trimmedValue = value.replace(/\s+/g, '')
+  const strippedValue = trimmedValue.replace(/^@+/, '')
+
+  return strippedValue ? `@${strippedValue}` : ''
+}
 
 export default function WorkshopPageClient({
   initialSlotId = fallbackSlotId,
@@ -15,7 +35,146 @@ export default function WorkshopPageClient({
   initialSlotId?: string
 }) {
   const [activeSlotId, setActiveSlotId] = useState(initialSlotId)
+  const [signupCounts, setSignupCounts] = useState<SignupCounts>({})
+  const [countsLoading, setCountsLoading] = useState(true)
+  const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false)
+  const [signupStep, setSignupStep] = useState<SignupStep>(0)
+  const [formValues, setFormValues] = useState(defaultFormValues)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const activeSlot = workshopSlots.find((slot) => slot.id === activeSlotId) ?? workshopSlots[0]
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadSignupCounts() {
+      try {
+        setCountsLoading(true)
+
+        const response = await fetch('/api/workshop-signups', {
+          cache: 'no-store',
+        })
+        const payload = await response.json()
+
+        if (!cancelled) {
+          setSignupCounts(response.ok ? (payload.counts ?? {}) : {})
+        }
+      } catch {
+        if (!cancelled) {
+          setSignupCounts({})
+        }
+      } finally {
+        if (!cancelled) {
+          setCountsLoading(false)
+        }
+      }
+    }
+
+    void loadSignupCounts()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  function closeSignupDialog() {
+    setIsSignupDialogOpen(false)
+    setSignupStep(0)
+    setFormValues(defaultFormValues)
+    setSubmitError(null)
+    setIsSubmitting(false)
+  }
+
+  function openSignupDialog() {
+    setIsSignupDialogOpen(true)
+    setSignupStep(0)
+    setFormValues(defaultFormValues)
+    setSubmitError(null)
+  }
+
+  function handleSlotSelection(slotId: string, workshopId: string) {
+    const currentStepIndex = workshopSlots.findIndex((slot) => slot.id === slotId)
+
+    setFormValues((currentValues) => ({
+      ...currentValues,
+      selections: {
+        ...currentValues.selections,
+        [slotId]: workshopId,
+      },
+    }))
+    setSubmitError(null)
+
+    if (currentStepIndex === -1) {
+      return
+    }
+
+    if (currentStepIndex < workshopSlots.length - 1) {
+      setSignupStep((currentStepIndex + 1) as SignupStep)
+      return
+    }
+
+    setSignupStep(3)
+  }
+
+  async function handleSignupSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const firstName = formValues.firstName.trim()
+    const lastName = formValues.lastName.trim()
+    const fullName = `${firstName} ${lastName}`.trim()
+    const telegramUsername = normalizeTelegramUsername(formValues.telegramUsername)
+    const selections = formValues.selections
+
+    if (firstName.length < 2 || lastName.length < 2 || telegramUsername.length < 2) {
+      setSubmitError('Заполни имя, фамилию и ник в Telegram.')
+      return
+    }
+
+    if (!/^@[A-Za-z0-9_]+$/.test(telegramUsername)) {
+      setSubmitError('Укажи корректный ник в Telegram.')
+      return
+    }
+
+    if (workshopSlots.some((slot) => !selections[slot.id])) {
+      setSubmitError('Выбери по одному воркшопу в каждом слоте.')
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+      setSubmitError(null)
+
+      const response = await fetch('/api/workshop-signups', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullName,
+          telegramUsername,
+          selections,
+        }),
+      })
+      const payload = await response.json()
+
+      if (!response.ok) {
+        throw new Error(payload?.message || 'Не удалось сохранить запись.')
+      }
+
+      setSignupCounts((currentCounts) => ({
+        ...currentCounts,
+        ...(payload?.counts ?? {}),
+      }))
+      closeSignupDialog()
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Не удалось сохранить запись.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const currentSelectionStep = signupStep < workshopSlots.length ? workshopSlots[signupStep] : null
+  const selectedWorkshopCount = Object.values(formValues.selections).filter(Boolean).length
 
   return (
     <main className="min-h-screen bg-paper text-ink">
@@ -69,6 +228,16 @@ export default function WorkshopPageClient({
             <HeroStat value={`${workshopSlots.length}`} label="слота" />
             <HeroStat value="2" label="дня программы" />
           </div>
+
+          <div className="mt-8">
+            <Button
+              type="button"
+              onClick={openSignupDialog}
+              className="h-12 rounded-full bg-[#BBEE54] px-7 text-sm uppercase tracking-[0.12em] text-ink hover:bg-[#a9dd42]"
+            >
+              Зарегистрироваться
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -96,6 +265,9 @@ export default function WorkshopPageClient({
                     </button>
                   ))}
                 </div>
+                <p className="mt-4 text-sm text-ink/55">
+                  На карточке показываем только количество регистраций, без имён.
+                </p>
               </div>
             </section>
 
@@ -112,7 +284,12 @@ export default function WorkshopPageClient({
 
                 <div className="mt-6 grid gap-5 xl:grid-cols-3">
                   {activeSlot.items.map((item) => (
-                    <WorkshopCard key={item.id} item={item} />
+                    <WorkshopCard
+                      key={item.id}
+                      item={item}
+                      registrationsCount={signupCounts[item.id] ?? 0}
+                      countsLoading={countsLoading}
+                    />
                   ))}
                 </div>
               </section>
@@ -120,6 +297,13 @@ export default function WorkshopPageClient({
           </div>
 
           <div className="mt-12 flex flex-wrap gap-3">
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
+            >
+              Вход в админку
+              <ArrowUpRight size={16} />
+            </Link>
             <Link
               href="/guide/schedule"
               className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
@@ -144,6 +328,242 @@ export default function WorkshopPageClient({
           </div>
         </div>
       </section>
+
+      <Dialog open={isSignupDialogOpen} onOpenChange={(isOpen) => !isOpen && closeSignupDialog()}>
+        <DialogContent className="overflow-hidden rounded-[32px] border-[4px] border-ink bg-paper p-0 sm:max-w-[560px] [&_[data-slot='dialog-close']]:top-4 [&_[data-slot='dialog-close']]:right-4 [&_[data-slot='dialog-close']]:flex [&_[data-slot='dialog-close']]:h-10 [&_[data-slot='dialog-close']]:w-10 [&_[data-slot='dialog-close']]:items-center [&_[data-slot='dialog-close']]:justify-center [&_[data-slot='dialog-close']]:rounded-full [&_[data-slot='dialog-close']]:border [&_[data-slot='dialog-close']]:border-ink/20 [&_[data-slot='dialog-close']]:bg-paper [&_[data-slot='dialog-close']]:text-ink/75 [&_[data-slot='dialog-close']]:opacity-100 [&_[data-slot='dialog-close']]:shadow-none [&_[data-slot='dialog-close']]:transition-colors [&_[data-slot='dialog-close']]:hover:bg-paper [&_[data-slot='dialog-close']]:hover:text-ink [&_[data-slot='dialog-close']_svg]:size-4">
+          <div className="rounded-t-[28px] border-b-[4px] border-ink bg-[#BBEE54] px-5 py-6 sm:px-6 sm:py-6">
+            <DialogHeader className="gap-3 text-left">
+              <TagChip variant="lime" className="w-fit self-start">
+                регистрация
+              </TagChip>
+              <DialogTitle className="max-w-[420px] font-display text-[1.9rem] leading-[0.92] tracking-[-0.03em] text-balance text-ink sm:text-[2.35rem]">
+                Регистрация на воркшопы
+              </DialogTitle>
+              <DialogDescription className="max-w-[420px] text-sm leading-relaxed text-ink/70 sm:text-[15px]">
+                Выбирай по одному воркшопу на каждый слот, а контакт оставь на последнем шаге.
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          <form className="space-y-4 px-5 pb-5 pt-1" onSubmit={handleSignupSubmit}>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                ...workshopSlots.map((slot) => ({
+                  key: slot.id,
+                  label: slot.slot.replace('Слот ', ''),
+                  isDone: Boolean(formValues.selections[slot.id]),
+                })),
+                {
+                  key: 'contacts',
+                  label: 'Контакт',
+                  isDone:
+                    Boolean(formValues.firstName.trim()) &&
+                    Boolean(formValues.lastName.trim()) &&
+                    Boolean(formValues.telegramUsername.trim()),
+                },
+              ].map((step, index) => (
+                <div
+                  key={step.key}
+                  className={cn(
+                    'rounded-full border px-3 py-2 text-center font-mono text-[11px] uppercase tracking-[0.16em]',
+                    index === signupStep
+                      ? 'border-ink bg-ink text-paper'
+                      : step.isDone
+                        ? 'border-[#BBEE54] bg-[#BBEE54] text-ink'
+                        : 'border-ink/10 bg-white text-ink/55'
+                  )}
+                >
+                  {step.label}
+                </div>
+              ))}
+            </div>
+
+            {currentSelectionStep ? (
+              <div className="space-y-3">
+                <div className="rounded-2xl border-2 border-ink/10 bg-white px-4 py-3">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
+                    {currentSelectionStep.slot} · {currentSelectionStep.day} · {currentSelectionStep.time}
+                  </div>
+                  <div className="mt-2 text-sm text-ink/65">
+                    Выбери один воркшоп, затем откроется следующий слот.
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {currentSelectionStep.items.map((item) => {
+                    const isActive = formValues.selections[currentSelectionStep.id] === item.id
+
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => handleSlotSelection(currentSelectionStep.id, item.id)}
+                        className={cn(
+                          'w-full rounded-[24px] border-[3px] bg-white p-4 text-left transition-colors',
+                          isActive
+                            ? 'border-vibe bg-vibe/5 shadow-[0_0_0_4px_rgba(123,54,255,0.12)]'
+                            : 'border-ink/10 hover:border-vibe/65 hover:bg-vibe/5'
+                        )}
+                      >
+                        <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/45">
+                          Автор
+                        </div>
+                        <div className="mt-1 font-display text-xl leading-[0.95] text-ink">
+                          {item.speaker}
+                        </div>
+                        <div className="mt-4 text-base leading-snug text-ink">
+                          {item.title}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="rounded-[24px] border-2 border-vibe bg-white p-4 shadow-[0_0_0_4px_rgba(123,54,255,0.08)]">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
+                    Ваши данные
+                  </div>
+
+                  <div className="mt-4 space-y-4">
+                    <div>
+                      <label
+                        htmlFor="workshop-signup-first-name"
+                        className="mb-2 block font-mono text-xs uppercase tracking-[0.16em] text-ink/55"
+                      >
+                        Имя
+                      </label>
+                      <Input
+                        id="workshop-signup-first-name"
+                        value={formValues.firstName}
+                        onChange={(event) =>
+                          setFormValues((currentValues) => ({
+                            ...currentValues,
+                            firstName: event.target.value,
+                          }))
+                        }
+                        placeholder="Как тебя зовут"
+                        className="h-12 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-base text-ink focus-visible:border-vibe"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="workshop-signup-last-name"
+                        className="mb-2 block font-mono text-xs uppercase tracking-[0.16em] text-ink/55"
+                      >
+                        Фамилия
+                      </label>
+                      <Input
+                        id="workshop-signup-last-name"
+                        value={formValues.lastName}
+                        onChange={(event) =>
+                          setFormValues((currentValues) => ({
+                            ...currentValues,
+                            lastName: event.target.value,
+                          }))
+                        }
+                        placeholder="Твоя фамилия"
+                        className="h-12 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-base text-ink focus-visible:border-vibe"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="workshop-signup-telegram"
+                        className="mb-2 block font-mono text-xs uppercase tracking-[0.16em] text-ink/55"
+                      >
+                        Telegram
+                      </label>
+                      <Input
+                        id="workshop-signup-telegram"
+                        value={formValues.telegramUsername}
+                        onChange={(event) =>
+                          setFormValues((currentValues) => ({
+                            ...currentValues,
+                            telegramUsername: normalizeTelegramUsername(event.target.value),
+                          }))
+                        }
+                        placeholder="@username"
+                        className="h-12 rounded-2xl border-2 border-vibe/25 bg-paper px-4 text-base text-ink focus-visible:border-vibe"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[24px] border-2 border-ink/10 bg-white p-4">
+                  <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
+                    Вы выбрали
+                  </div>
+                  <div className="mt-3 space-y-3">
+                    {workshopSlots.map((slot) => {
+                      const selectedItem = slot.items.find((item) => item.id === formValues.selections[slot.id])
+
+                      return (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          onClick={() => setSignupStep(workshopSlots.findIndex((item) => item.id === slot.id) as SignupStep)}
+                          className="w-full rounded-2xl border-2 border-vibe/45 bg-vibe/5 px-4 py-3 text-left transition-colors hover:border-vibe hover:bg-vibe/10"
+                        >
+                          <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-vibe">
+                            {slot.slot}
+                          </div>
+                          <div className="mt-1 text-sm text-ink">
+                            {selectedItem ? selectedItem.title : 'Не выбрано'}
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div className="mt-3 text-sm text-ink/55">
+                    Выбрано слотов: {selectedWorkshopCount} из {workshopSlots.length}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {submitError ? (
+              <p className="text-sm text-red-600">{submitError}</p>
+            ) : (
+              <p className="text-sm text-ink/55">
+                Сохраняем одну актуальную запись на пользователя по Telegram.
+              </p>
+            )}
+
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
+              {signupStep > 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSignupStep((signupStep - 1) as SignupStep)}
+                  className="h-12 rounded-full border-2 border-ink px-6 text-sm uppercase tracking-[0.12em] text-ink"
+                >
+                  Назад
+                </Button>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={closeSignupDialog}
+                className="h-12 rounded-full border-2 border-ink px-6 text-sm uppercase tracking-[0.12em] text-ink"
+              >
+                Отмена
+              </Button>
+              {signupStep === 3 ? (
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="h-12 rounded-full bg-ink px-6 text-sm uppercase tracking-[0.12em] text-paper hover:bg-ink/90"
+                >
+                  {isSubmitting ? 'Сохраняем...' : 'Записаться'}
+                </Button>
+              ) : null}
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </main>
   )
 }
@@ -159,13 +579,17 @@ function HeroStat({ value, label }: { value: string; label: string }) {
 
 function WorkshopCard({
   item,
+  registrationsCount,
+  countsLoading,
 }: {
   item: WorkshopItem
+  registrationsCount: number
+  countsLoading: boolean
 }) {
   const initials = getInitials(item.speaker)
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-[28px] border-[4px] border-ink bg-paper shadow-[0_10px_30px_rgba(16,15,14,0.06)]">
+    <article className="flex h-full w-full flex-col overflow-hidden rounded-[28px] border-[4px] border-ink bg-paper text-left shadow-[0_10px_30px_rgba(16,15,14,0.06)]">
       <div className="border-b-[4px] border-ink bg-white px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-pink text-lg font-semibold text-paper">
@@ -181,6 +605,19 @@ function WorkshopCard({
         <div className="flex w-full flex-col gap-4">
           <div className="text-[1.4rem] leading-[1.05] tracking-[-0.02em] text-ink sm:text-[1.75rem]">
             {item.title}
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t-[4px] border-ink bg-white px-4 py-3">
+        <div>
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-ink/45">
+              Зарегистрировано
+            </div>
+            <div className="mt-2 font-display text-3xl leading-none text-ink">
+              {countsLoading ? '...' : registrationsCount}
+            </div>
           </div>
         </div>
       </div>
