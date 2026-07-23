@@ -1,6 +1,6 @@
 'use client'
 
-import { type CSSProperties, type FormEvent, useEffect, useState } from 'react'
+import { type CSSProperties, type FormEvent, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUpRight } from 'lucide-react'
 import { TagChip } from '@/components/site/Decor'
@@ -18,7 +18,6 @@ const defaultFormValues = {
   selections: Object.fromEntries(workshopSlots.map((slot) => [slot.id, ''])) as Record<string, string>,
 }
 
-type SignupCounts = Record<string, number>
 type SignupStep = 0 | 1 | 2 | 3 | 4
 
 function normalizeTelegramUsername(value: string) {
@@ -29,46 +28,11 @@ function normalizeTelegramUsername(value: string) {
 }
 
 export default function WorkshopPageClient() {
-  const [signupCounts, setSignupCounts] = useState<SignupCounts>({})
-  const [countsLoading, setCountsLoading] = useState(true)
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false)
   const [signupStep, setSignupStep] = useState<SignupStep>(0)
   const [formValues, setFormValues] = useState(defaultFormValues)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadSignupCounts() {
-      try {
-        setCountsLoading(true)
-
-        const response = await fetch('/api/workshop-signups', {
-          cache: 'no-store',
-        })
-        const payload = await response.json()
-
-        if (!cancelled) {
-          setSignupCounts(response.ok ? (payload.counts ?? {}) : {})
-        }
-      } catch {
-        if (!cancelled) {
-          setSignupCounts({})
-        }
-      } finally {
-        if (!cancelled) {
-          setCountsLoading(false)
-        }
-      }
-    }
-
-    void loadSignupCounts()
-
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   function closeSignupDialog() {
     setIsSignupDialogOpen(false)
@@ -154,10 +118,6 @@ export default function WorkshopPageClient() {
         throw new Error(payload?.message || 'Не удалось сохранить запись.')
       }
 
-      setSignupCounts((currentCounts) => ({
-        ...currentCounts,
-        ...(payload?.counts ?? {}),
-      }))
       setSignupStep(4)
     } catch (error) {
       setSubmitError(error instanceof Error ? error.message : 'Не удалось сохранить запись.')
@@ -256,12 +216,7 @@ export default function WorkshopPageClient() {
 
                 <div className="mt-6 space-y-5">
                   {slot.items.map((item) => (
-                    <WorkshopCard
-                      key={item.id}
-                      item={item}
-                      registrationsCount={signupCounts[item.id] ?? 0}
-                      countsLoading={countsLoading}
-                    />
+                    <WorkshopCard key={item.id} item={item} />
                   ))}
                 </div>
               </section>
@@ -573,40 +528,25 @@ function HeroStat({ value, label }: { value: string; label: string }) {
 
 function WorkshopCard({
   item,
-  registrationsCount,
-  countsLoading,
 }: {
   item: WorkshopItem
-  registrationsCount: number
-  countsLoading: boolean
 }) {
   const initials = getInitials(item.speaker)
 
   return (
     <article className="overflow-hidden rounded-[24px] border-[3px] border-ink bg-[#BBEE54] text-left shadow-[0_8px_24px_rgba(16,15,14,0.06)]">
       <div className="px-4 py-4 sm:px-6 sm:py-5">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 sm:gap-5">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-pink text-base font-semibold text-paper sm:h-14 sm:w-14 sm:rounded-2xl sm:text-lg">
-              {initials}
-            </div>
-            <div className="min-w-0">
-              <div className="text-base font-semibold leading-tight text-ink sm:text-lg">
-                {item.speaker}
-              </div>
-              <div className="mt-1 font-mono text-xs uppercase tracking-[0.14em] text-ink/60">
-                Спикер
-              </div>
-            </div>
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-pink text-base font-semibold text-paper sm:h-14 sm:w-14 sm:rounded-2xl sm:text-lg">
+            {initials}
           </div>
-
-          <div className="flex min-h-12 shrink-0 items-center rounded-full border-[3px] border-ink bg-white px-3 py-2 sm:min-h-14 sm:px-4">
-            <span className="font-display text-2xl leading-none text-ink sm:text-[1.75rem]">
-              {countsLoading ? '...' : registrationsCount}
-            </span>
-            <span className="ml-2 max-w-[68px] text-[11px] leading-tight text-ink/65 sm:text-xs">
-              {countsLoading ? 'регистраций' : getParticipantLabel(registrationsCount)}
-            </span>
+          <div className="min-w-0">
+            <div className="text-base font-semibold leading-tight text-ink sm:text-lg">
+              {item.speaker}
+            </div>
+            <div className="mt-1 font-mono text-xs uppercase tracking-[0.14em] text-ink/60">
+              Спикер
+            </div>
           </div>
         </div>
 
@@ -620,25 +560,6 @@ function WorkshopCard({
       </div>
     </article>
   )
-}
-
-function getParticipantLabel(count: number) {
-  const lastTwoDigits = count % 100
-  const lastDigit = count % 10
-
-  if (lastTwoDigits >= 11 && lastTwoDigits <= 14) {
-    return 'участников'
-  }
-
-  if (lastDigit === 1) {
-    return 'участник'
-  }
-
-  if (lastDigit >= 2 && lastDigit <= 4) {
-    return 'участника'
-  }
-
-  return 'участников'
 }
 
 function getInitials(name: string) {
