@@ -117,6 +117,13 @@ export const guideSections = [
     accent: 'lime',
   },
   {
+    slug: 'transport',
+    title: 'Транспорт',
+    description: 'Поиск по имени: автобус, самостоятельно, машина, такси и пометки по направлениям.',
+    tag: '/transport',
+    accent: 'cyan',
+  },
+  {
     slug: 'packing',
     title: 'Что взять с собой',
     description: 'Короткий список самого важного: документы, вещи, лекарства, репелент и баня.',

@@ -38,6 +38,7 @@ import {
 } from '@/lib/knowledge-base'
 import { forestAccommodationEntries } from '@/lib/forest-accommodation'
 import { moscowAccommodationNoStay, moscowAccommodationRooms } from '@/lib/moscow-accommodation'
+import { transportEntries } from '@/lib/transport'
 import { getWorkshopSlotBySchedule } from '@/lib/workshops'
 
 const KNOWLEDGE_COVER =
@@ -151,6 +152,14 @@ type AccommodationPersonResult = {
   person: string
   normalized: string
   presences: AccommodationPresence[]
+}
+
+type TransportResult = {
+  person: string
+  normalized: string
+  type: 'bus' | 'self'
+  direction?: string
+  detail?: string
 }
 
 const accommodationPlaceOrder: Record<AccommodationPlace, number> = {
@@ -280,6 +289,13 @@ const accommodationLookup = (() => {
     .sort((a, b) => a.person.localeCompare(b.person, 'ru'))
 })()
 
+const transportLookup: TransportResult[] = transportEntries
+  .map((entry) => ({
+    ...entry,
+    normalized: normalizeSearch(entry.person),
+  }))
+  .sort((a, b) => a.person.localeCompare(b.person, 'ru'))
+
 export function GuideShell({
   currentSlug,
 }: {
@@ -399,6 +415,8 @@ export function GuideSectionContent({ slug }: { slug: GuideSectionSlug }) {
       return <WeatherSection />
     case 'moscow-accommodation':
       return <MoscowAccommodationSection />
+    case 'transport':
+      return <TransportSection />
     case 'packing':
       return <PackingSection />
     case 'principles':
@@ -737,6 +755,86 @@ function MoscowAccommodationSection() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : normalizeSearch(query) ? (
+            <div className="mt-6 text-sm text-ink/65">
+              Ничего не найдено.
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function TransportSection() {
+  const [query, setQuery] = useState('')
+
+  const matches = useMemo(() => {
+    const q = normalizeSearch(query)
+    if (!q) return []
+
+    return transportLookup.filter((person) => person.normalized.includes(q))
+  }, [query])
+
+  return (
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div className="mb-8">
+          <div>
+            <TagChip variant="cyan">/transport</TagChip>
+            <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
+              Транспорт
+            </h2>
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink/65 sm:text-base">
+              Автобус по умолчанию идёт туда и обратно. Для двух человек вынесли отдельные
+              пометки по одному направлению. Если рядом указан самостоятельный трансфер,
+              дополнительно показываем, это машина или такси.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-transparent">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+              /search
+            </div>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Например: Иванов или Артём"
+              className="h-12 w-full border-0 border-b border-ink/10 bg-transparent px-0 font-sans text-base text-ink outline-none placeholder:text-ink/35 focus:border-vibe"
+            />
+          </div>
+
+          {!normalizeSearch(query) ? (
+            <div className="mt-6 text-sm text-ink/65">
+              Поиск работает по подстроке: можно вводить имя, фамилию или часть.
+            </div>
+          ) : null}
+
+          {matches.length ? (
+            <div className="mt-6 space-y-3">
+              {matches.map((row) => (
+                <div key={`${row.normalized}-${row.type}`} className="border-b border-ink/8 py-4">
+                  <div className="font-display text-xl text-ink">{row.person}</div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <TagChip variant={row.type === 'bus' ? 'lime' : 'paper'}>
+                      {row.type === 'bus' ? 'Автобус' : 'Самостоятельно'}
+                    </TagChip>
+                    {row.detail ? (
+                      <div className="font-mono text-xs uppercase tracking-widest text-ink/55">
+                        {row.detail}
+                      </div>
+                    ) : null}
+                    {row.direction ? (
+                      <div className="font-mono text-xs uppercase tracking-widest text-vibe">
+                        {row.direction}
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               ))}
