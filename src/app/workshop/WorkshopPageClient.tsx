@@ -1,6 +1,6 @@
 'use client'
 
-import { type CSSProperties, type FormEvent, useState } from 'react'
+import { type CSSProperties, type FormEvent, useEffect, useState } from 'react'
 import Image, { type StaticImageData } from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUpRight } from 'lucide-react'
@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils'
 import { workshopSlots, type WorkshopItem, type WorkshopSlot } from '@/lib/workshops'
 
 const totalWorkshops = workshopSlots.reduce((sum, slot) => sum + slot.items.length, 0)
+const signupQueryKey = 'signup'
 const defaultFormValues = {
   firstName: '',
   lastName: '',
@@ -75,6 +76,22 @@ function normalizeTelegramUsername(value: string) {
   return strippedValue ? `@${strippedValue}` : ''
 }
 
+function hasSignupQuery() {
+  return new URLSearchParams(window.location.search).get(signupQueryKey) === '1'
+}
+
+function updateSignupQuery(isOpen: boolean, mode: 'push' | 'replace') {
+  const url = new URL(window.location.href)
+
+  if (isOpen) {
+    url.searchParams.set(signupQueryKey, '1')
+  } else {
+    url.searchParams.delete(signupQueryKey)
+  }
+
+  window.history[`${mode}State`]({}, '', `${url.pathname}${url.search}${url.hash}`)
+}
+
 export default function WorkshopPageClient() {
   const [isSignupDialogOpen, setIsSignupDialogOpen] = useState(false)
   const [signupStep, setSignupStep] = useState<SignupStep>(0)
@@ -82,7 +99,31 @@ export default function WorkshopPageClient() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
 
+  useEffect(() => {
+    const syncDialogWithUrl = () => {
+      const shouldOpen = hasSignupQuery()
+
+      setIsSignupDialogOpen(shouldOpen)
+
+      if (shouldOpen) {
+        setSignupStep(0)
+        setFormValues(defaultFormValues)
+        setSubmitError(null)
+        setIsSubmitting(false)
+      }
+    }
+
+    syncDialogWithUrl()
+    window.addEventListener('popstate', syncDialogWithUrl)
+
+    return () => window.removeEventListener('popstate', syncDialogWithUrl)
+  }, [])
+
   function closeSignupDialog() {
+    if (hasSignupQuery()) {
+      updateSignupQuery(false, 'replace')
+    }
+
     setIsSignupDialogOpen(false)
     setSignupStep(0)
     setFormValues(defaultFormValues)
@@ -91,6 +132,10 @@ export default function WorkshopPageClient() {
   }
 
   function openSignupDialog() {
+    if (!hasSignupQuery()) {
+      updateSignupQuery(true, 'push')
+    }
+
     setIsSignupDialogOpen(true)
     setSignupStep(0)
     setFormValues(defaultFormValues)
