@@ -1,12 +1,22 @@
 'use client'
 
 import { type CSSProperties, type FormEvent, useState } from 'react'
+import Image, { type StaticImageData } from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUpRight } from 'lucide-react'
 import { TagChip } from '@/components/site/Decor'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import alexanderTyrtov from '../../../local img/Александр.png'
+import mironShibanov from '../../../local img/мирон.png'
+import nikitaPomyashchiy from '../../../local img/Никита.png'
+import pavelSmirnov from '../../../local img/Павел.png'
+import sergeyChekhlomin from '../../../local img/Сергей.png'
+import seryozhaPopov from '../../../local img/Серёжа.png'
+import stanislavKlimov from '../../../local img/стас.png'
+import temaNeplyah from '../../../local img/Тема.png'
+import vyacheslavMakushin from '../../../local img/Вячеслав.png'
 import { cn } from '@/lib/utils'
 import { workshopSlots, type WorkshopItem, type WorkshopSlot } from '@/lib/workshops'
 
@@ -19,6 +29,47 @@ const defaultFormValues = {
 }
 
 type SignupStep = 0 | 1 | 2 | 3 | 4
+
+const workshopSlotMeta = {
+  'slot-a': {
+    label: 'Слот 1',
+    surfaceClassName: 'bg-[#E7DBFF]',
+    chipClassName: 'bg-vibe text-paper',
+    borderClassName: 'border-vibe/20',
+  },
+  'slot-b': {
+    label: 'Слот 2',
+    surfaceClassName: 'bg-[#DFF4BE]',
+    chipClassName: 'bg-[#95CE17] text-ink',
+    borderClassName: 'border-[#95CE17]/25',
+  },
+  'slot-c': {
+    label: 'Слот 3',
+    surfaceClassName: 'bg-[#CDEEFF]',
+    chipClassName: 'bg-cyan text-ink',
+    borderClassName: 'border-cyan/25',
+  },
+} as const
+
+type WorkshopPortrait = {
+  src: StaticImageData
+  alt: string
+}
+
+const workshopPortraits: Partial<Record<WorkshopItem['id'], WorkshopPortrait[]>> = {
+  'slot-a-design-ai': [{ src: temaNeplyah, alt: 'Тёма Неплях' }],
+  'slot-a-agent-anatomy': [{ src: vyacheslavMakushin, alt: 'Вячеслав Макушин' }],
+  'slot-a-open-data': [{ src: alexanderTyrtov, alt: 'Тыртов Александр' }],
+  'slot-b-self-check-loop': [{ src: mironShibanov, alt: 'Мирон Шибанов' }],
+  'slot-b-external-brain': [{ src: seryozhaPopov, alt: 'Серёжа Попов' }],
+  'slot-b-sheets-datalens': [
+    { src: pavelSmirnov, alt: 'Павел Смирнов' },
+    { src: sergeyChekhlomin, alt: 'Сергей Чехломин' },
+  ],
+  'slot-c-ai-tools': [{ src: stanislavKlimov, alt: 'Станислав Климов' }],
+  'slot-c-500-chats': [{ src: seryozhaPopov, alt: 'Серёжа Попов' }],
+  'slot-c-agi-platform': [{ src: nikitaPomyashchiy, alt: 'Никита Помящий' }],
+}
 
 function normalizeTelegramUsername(value: string) {
   const trimmedValue = value.replace(/\s+/g, '').toLowerCase()
@@ -196,30 +247,9 @@ export default function WorkshopPageClient() {
 
       <section className="py-10 sm:py-12">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {workshopSlots.map((slot) => (
-              <section key={slot.id} className="border-b border-ink/8 pb-8 last:border-b-0 last:pb-0">
-                <div className="border-b border-ink/10 pb-4">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div className="font-mono text-xs uppercase tracking-[0.18em] text-vibe sm:text-sm">
-                      {slot.slot}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 font-display text-xl leading-none text-ink sm:gap-x-5 sm:text-2xl lg:text-3xl">
-                      <span>{slot.day}</span>
-                      <span className="text-ink/25" aria-hidden="true">·</span>
-                      <span>{slot.date}</span>
-                      <span className="text-ink/25" aria-hidden="true">·</span>
-                      <span>{slot.time}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-5">
-                  {slot.items.map((item) => (
-                    <WorkshopCard key={item.id} item={item} />
-                  ))}
-                </div>
-              </section>
+              <WorkshopSlotSection key={slot.id} slot={slot} />
             ))}
           </div>
 
@@ -515,6 +545,108 @@ export default function WorkshopPageClient() {
   )
 }
 
+function WorkshopSlotSection({ slot }: { slot: WorkshopSlot }) {
+  const meta = workshopSlotMeta[slot.id]
+
+  return (
+    <section
+      className={cn(
+        'overflow-hidden rounded-[28px] border-[3px] border-ink shadow-[0_10px_32px_rgba(16,15,14,0.06)] sm:rounded-[32px]',
+        meta.surfaceClassName
+      )}
+    >
+      <div className="grid gap-5 px-4 py-4 sm:px-5 sm:py-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6 lg:p-6">
+        <div className="flex flex-col justify-between rounded-[22px] border border-ink/10 bg-white/55 p-4 sm:rounded-[24px] sm:p-5">
+          <div>
+            <div
+              className={cn(
+                'inline-flex rounded-full px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em]',
+                meta.chipClassName
+              )}
+            >
+              {meta.label}
+            </div>
+            <div className="mt-4 font-display text-3xl leading-[0.9] text-ink sm:text-4xl">
+              {slot.day}
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-2 text-ink">
+            <div className="font-display text-2xl leading-none sm:text-[2rem]">{slot.time}</div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
+              {slot.date}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          {slot.items.map((item) => (
+            <WorkshopCard
+              key={item.id}
+              item={item}
+              borderClassName={meta.borderClassName}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function WorkshopCard({
+  item,
+  borderClassName,
+}: {
+  item: WorkshopItem
+  borderClassName: string
+}) {
+  const portraits = workshopPortraits[item.id] ?? []
+
+  return (
+    <article
+      className={cn(
+        'rounded-[24px] border bg-white px-4 py-4 text-left shadow-[0_6px_18px_rgba(16,15,14,0.04)] sm:px-5 sm:py-5',
+        borderClassName
+      )}
+    >
+      <div className="flex flex-wrap items-start gap-3 sm:gap-4">
+        {portraits.length ? (
+          <div className="flex -space-x-3">
+            {portraits.map((portrait, portraitIndex) => (
+              <div
+                key={`${item.id}-${portrait.alt}`}
+                className={cn(
+                  'relative h-12 w-12 overflow-hidden rounded-2xl border-2 border-white bg-[#F2EEE9] shadow-[0_6px_18px_rgba(16,15,14,0.08)]',
+                  portraitIndex > 0 && 'mt-4'
+                )}
+              >
+                <Image
+                  src={portrait.src}
+                  alt={portrait.alt}
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/45">
+            {item.speaker}
+          </div>
+          <h2 className="mt-2 text-[1.2rem] font-semibold leading-[1.05] tracking-[-0.02em] text-ink sm:text-[1.45rem]">
+            {item.title}
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-ink/72 sm:text-[15px]">
+            {item.description}
+          </p>
+        </div>
+      </div>
+    </article>
+  )
+}
+
 function HeroStat({ value, label }: { value: string; label: string }) {
   return (
     <div className="rounded-[18px] border border-paper/12 bg-paper/6 px-3 py-4 sm:rounded-[24px] sm:px-5 sm:py-5">
@@ -524,49 +656,4 @@ function HeroStat({ value, label }: { value: string; label: string }) {
       </div>
     </div>
   )
-}
-
-function WorkshopCard({
-  item,
-}: {
-  item: WorkshopItem
-}) {
-  const initials = getInitials(item.speaker)
-
-  return (
-    <article className="overflow-hidden rounded-[24px] border-[3px] border-ink bg-[#BBEE54] text-left shadow-[0_8px_24px_rgba(16,15,14,0.06)]">
-      <div className="px-4 py-4 sm:px-6 sm:py-5">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-pink text-base font-semibold text-paper sm:h-14 sm:w-14 sm:rounded-2xl sm:text-lg">
-            {initials}
-          </div>
-          <div className="min-w-0">
-            <div className="text-base font-semibold leading-tight text-ink sm:text-lg">
-              {item.speaker}
-            </div>
-            <div className="mt-1 font-mono text-xs uppercase tracking-[0.14em] text-ink/60">
-              Спикер
-            </div>
-          </div>
-        </div>
-
-        <h2 className="mt-4 max-w-5xl text-[1.35rem] font-semibold leading-[1.08] tracking-[-0.02em] text-ink sm:mt-5 sm:text-[1.65rem]">
-          {item.title}
-        </h2>
-
-        <p className="mt-3 max-w-5xl text-[15px] font-normal leading-[1.5] text-ink/80 sm:text-base">
-          {item.description}
-        </p>
-      </div>
-    </article>
-  )
-}
-
-function getInitials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
-    .join('')
 }
