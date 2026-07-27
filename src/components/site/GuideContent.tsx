@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   accommodationPlaces,
   guideSections,
@@ -36,6 +37,7 @@ import {
   type GuideSectionSlug,
   weatherLocations,
 } from '@/lib/knowledge-base'
+import transportDepartureMap from '@/assets/transport-bus-departure-map.jpg'
 import { forestAccommodationEntries } from '@/lib/forest-accommodation'
 import { moscowAccommodationNoStay, moscowAccommodationRooms } from '@/lib/moscow-accommodation'
 import { transportEntries } from '@/lib/transport'
@@ -798,52 +800,108 @@ function TransportSection() {
         </div>
 
         <div className="bg-transparent">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-              /search
-            </div>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Например: Иванов или Артём"
-              className="h-12 w-full border-0 border-b border-ink/10 bg-transparent px-0 font-sans text-base text-ink outline-none placeholder:text-ink/35 focus:border-vibe"
-            />
-          </div>
+          <Tabs defaultValue="departure" className="gap-6">
+            <TabsList className="h-auto w-full justify-start rounded-[20px] bg-ink/5 p-1">
+              <TabsTrigger
+                value="departure"
+                className="min-h-11 rounded-[16px] px-4 py-2.5 font-display text-sm text-ink data-[state=active]:bg-white data-[state=active]:text-ink sm:text-base"
+              >
+                Место отправления
+              </TabsTrigger>
+              <TabsTrigger
+                value="search"
+                className="min-h-11 rounded-[16px] px-4 py-2.5 font-display text-sm text-ink data-[state=active]:bg-white data-[state=active]:text-ink sm:text-base"
+              >
+                Поиск по списку
+              </TabsTrigger>
+            </TabsList>
 
-          {!normalizeSearch(query) ? (
-            <div className="mt-6 text-sm text-ink/65">
-              Поиск работает по подстроке: можно вводить имя, фамилию или часть.
-            </div>
-          ) : null}
-
-          {matches.length ? (
-            <div className="mt-6 space-y-3">
-              {matches.map((row) => (
-                <div key={`${row.normalized}-${row.type}`} className="border-b border-ink/8 py-4">
-                  <div className="font-display text-xl text-ink">{row.person}</div>
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
-                    <TagChip variant={row.type === 'bus' ? 'lime' : 'paper'}>
-                      {row.type === 'bus' ? 'Автобус' : 'Самостоятельно'}
-                    </TagChip>
-                    {row.detail ? (
-                      <div className="font-mono text-xs uppercase tracking-widest text-ink/55">
-                        {row.detail}
-                      </div>
-                    ) : null}
-                    {row.direction ? (
-                      <div className="font-mono text-xs uppercase tracking-widest text-vibe">
-                        {row.direction}
-                      </div>
-                    ) : null}
-                  </div>
+            <TabsContent value="departure">
+              <div className="rounded-[24px] border border-ink/10 bg-white px-4 py-4 sm:px-5">
+                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                  Отправление автобуса
                 </div>
-              ))}
-            </div>
-          ) : normalizeSearch(query) ? (
-            <div className="mt-6 text-sm text-ink/65">
-              Ничего не найдено.
-            </div>
-          ) : null}
+                <div className="mt-4 space-y-4 text-sm leading-relaxed text-ink/75 sm:text-base">
+                  <p>
+                    <strong className="font-semibold text-ink">Точка отправления:</strong>{' '}
+                    гостиница
+                    <strong className="font-semibold text-ink"> Самфар Палас Москва</strong>,
+                    1-я Тверская-Ямская ул., 19.
+                  </p>
+                  <p>
+                    <strong className="font-semibold text-ink">Ближайшее метро:</strong>{' '}
+                    Белорусская.
+                  </p>
+                  <p>
+                    <strong className="font-semibold text-ink">Где ждать автобус:</strong> либо на
+                    ул. Большая Грузинская, либо на 1-й Брестской.
+                  </p>
+                  <p>
+                    <strong className="font-semibold text-ink">Сбор:</strong> 9:30.
+                    <br />
+                    <strong className="font-semibold text-ink">Отправление:</strong> 9:50.
+                    <br />
+                    <strong className="font-semibold text-ink">Важно:</strong> ждать никого не
+                    будем.
+                  </p>
+                </div>
+                <img
+                  src={transportDepartureMap.src}
+                  alt="Схема точки отправления автобуса у гостиницы Самфар Палас Москва"
+                  className="mt-4 w-full rounded-[20px] border border-ink/10 object-cover"
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="search">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+                  /search
+                </div>
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Например: Иванов или Артём"
+                  className="h-12 w-full border-0 border-b border-ink/10 bg-transparent px-0 font-sans text-base text-ink outline-none placeholder:text-ink/35 focus:border-vibe"
+                />
+              </div>
+
+              {!normalizeSearch(query) ? (
+                <div className="mt-6 text-sm text-ink/65">
+                  Поиск работает по подстроке: можно вводить имя, фамилию или часть.
+                </div>
+              ) : null}
+
+              {matches.length ? (
+                <div className="mt-6 space-y-3">
+                  {matches.map((row) => (
+                    <div key={`${row.normalized}-${row.type}`} className="border-b border-ink/8 py-4">
+                      <div className="font-display text-xl text-ink">{row.person}</div>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <TagChip variant={row.type === 'bus' ? 'lime' : 'paper'}>
+                          {row.type === 'bus' ? 'Автобус' : 'Самостоятельно'}
+                        </TagChip>
+                        {row.detail ? (
+                          <div className="font-mono text-xs uppercase tracking-widest text-ink/55">
+                            {row.detail}
+                          </div>
+                        ) : null}
+                        {row.direction ? (
+                          <div className="font-mono text-xs uppercase tracking-widest text-vibe">
+                            {row.direction}
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : normalizeSearch(query) ? (
+                <div className="mt-6 text-sm text-ink/65">
+                  Ничего не найдено.
+                </div>
+              ) : null}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </section>
