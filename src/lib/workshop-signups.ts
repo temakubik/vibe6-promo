@@ -142,11 +142,6 @@ function parseCountResponse(payload: unknown) {
   return 0
 }
 
-export async function getWorkshopSignupCount(workshopId: string) {
-  const counts = await getWorkshopSignupCounts([workshopId])
-  return counts[workshopId] ?? 0
-}
-
 export async function getWorkshopSignupCounts(workshopIds: string[]) {
   const counts = Object.fromEntries(workshopIds.map((workshopId) => [workshopId, 0]))
   const records = await listWorkshopSignupRecords()

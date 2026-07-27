@@ -407,7 +407,7 @@ export function GuideShell({
   )
 }
 
-export function GuideSectionContent({ slug }: { slug: GuideSectionSlug }) {
+function GuideSectionContent({ slug }: { slug: GuideSectionSlug }) {
   switch (slug) {
     case 'schedule':
       return <ScheduleSection />

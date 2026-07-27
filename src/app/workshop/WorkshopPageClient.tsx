@@ -32,19 +32,16 @@ type SignupStep = 0 | 1 | 2 | 3 | 4
 
 const workshopSlotMeta = {
   'slot-a': {
-    label: 'Слот 1',
     surfaceClassName: 'bg-[#E7DBFF]',
     chipClassName: 'bg-vibe text-paper',
     borderClassName: 'border-vibe/20',
   },
   'slot-b': {
-    label: 'Слот 2',
     surfaceClassName: 'bg-[#DFF4BE]',
     chipClassName: 'bg-[#95CE17] text-ink',
     borderClassName: 'border-[#95CE17]/25',
   },
   'slot-c': {
-    label: 'Слот 3',
     surfaceClassName: 'bg-[#CDEEFF]',
     chipClassName: 'bg-cyan text-ink',
     borderClassName: 'border-cyan/25',
@@ -368,8 +365,8 @@ export default function WorkshopPageClient() {
                     Заявка отправлена
                   </h3>
                   <p className="mx-auto mt-3 max-w-[320px] text-sm leading-relaxed text-ink/70 sm:text-base">
-                    Мы сохранили твой выбор по слотам. Если планы изменятся, можно отправить форму
-                    ещё раз и обновить запись.
+                    Выбор сохранён по логину Telegram. Если планы изменятся, отправь форму ещё
+                    раз с тем же логином — предыдущая запись обновится.
                   </p>
                 </div>
               </div>
@@ -417,6 +414,9 @@ export default function WorkshopPageClient() {
                   <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink/55 sm:text-[11px] sm:tracking-[0.16em]">
                     Ваши данные
                   </div>
+                  <p className="mt-2 text-xs leading-relaxed text-ink/60 sm:text-sm">
+                    Запись привязана к логину Telegram. Повторная отправка заменит предыдущий выбор.
+                  </p>
 
                   <div className="mt-3 space-y-3 sm:mt-4 sm:space-y-4">
                     <div>
@@ -555,8 +555,8 @@ function WorkshopSlotSection({ slot }: { slot: WorkshopSlot }) {
         meta.surfaceClassName
       )}
     >
-      <div className="grid gap-5 px-4 py-4 sm:px-5 sm:py-5 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6 lg:p-6">
-        <div className="flex flex-col justify-between rounded-[22px] border border-ink/10 bg-white/55 p-4 sm:rounded-[24px] sm:p-5">
+      <div className="grid gap-4 p-4 lg:grid-cols-[176px_minmax(0,1fr)]">
+        <div className="flex flex-col justify-between rounded-[22px] border border-ink/10 bg-white/55 p-4 sm:rounded-[24px]">
           <div>
             <div
               className={cn(
@@ -564,7 +564,7 @@ function WorkshopSlotSection({ slot }: { slot: WorkshopSlot }) {
                 meta.chipClassName
               )}
             >
-              {meta.label}
+              {slot.slot}
             </div>
             <div className="mt-4 font-display text-3xl leading-[0.9] text-ink sm:text-4xl">
               {slot.day}
@@ -579,7 +579,7 @@ function WorkshopSlotSection({ slot }: { slot: WorkshopSlot }) {
           </div>
         </div>
 
-        <div className="grid gap-3">
+        <div className="grid gap-4">
           {slot.items.map((item) => (
             <WorkshopCard
               key={item.id}
@@ -605,20 +605,17 @@ function WorkshopCard({
   return (
     <article
       className={cn(
-        'rounded-[24px] border bg-white px-4 py-4 text-left shadow-[0_6px_18px_rgba(16,15,14,0.04)] sm:px-5 sm:py-5',
+        'rounded-[24px] border bg-white p-4 text-left shadow-[0_6px_18px_rgba(16,15,14,0.04)]',
         borderClassName
       )}
     >
-      <div className="flex flex-wrap items-start gap-3 sm:gap-4">
+      <div className="flex flex-wrap items-start gap-4">
         {portraits.length ? (
-          <div className="flex -space-x-3">
-            {portraits.map((portrait, portraitIndex) => (
+          <div className="flex w-12 shrink-0 flex-col gap-2">
+            {portraits.map((portrait) => (
               <div
                 key={`${item.id}-${portrait.alt}`}
-                className={cn(
-                  'relative h-12 w-12 overflow-hidden rounded-2xl border-2 border-white bg-[#F2EEE9] shadow-[0_6px_18px_rgba(16,15,14,0.08)]',
-                  portraitIndex > 0 && 'mt-4'
-                )}
+                className="relative h-12 w-12 overflow-hidden rounded-2xl border-2 border-white bg-[#F2EEE9] shadow-[0_6px_18px_rgba(16,15,14,0.08)]"
               >
                 <Image
                   src={portrait.src}

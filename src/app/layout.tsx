@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Vibe - 6, день рождения в стиле буткемпа",
@@ -48,7 +47,6 @@ export default function RootLayout({
     <html lang="ru" suppressHydrationWarning>
       <body className="antialiased bg-background text-foreground">
         {children}
-        <Toaster />
       </body>
     </html>
   );
