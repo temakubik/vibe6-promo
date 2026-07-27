@@ -6,7 +6,7 @@ export type ForestAccommodationEntry = {
 
 export const forestAccommodationEntries: ForestAccommodationEntry[] = [
   { person: 'Алешина Анна Дмитриевна', roommates: ['Манько Евгения Олеговна'] },
-  { person: 'Андронов Андрей Михайлович', roommates: ['Климов Станислав Андреевич'] },
+  { person: 'Михаил Шилов', roommates: ['Климов Станислав Андреевич'] },
   { person: 'Белоусова Татьяна Валерьевна', roommates: ['Ефимова Дарья Антоновна'] },
   { person: 'Бижов Илья', roommates: ['Седин Артем Витальевич'] },
   { person: 'Богунов Михаил Сергеевич', roommates: ['Лебедев Евгений Александрович'] },
@@ -27,7 +27,7 @@ export const forestAccommodationEntries: ForestAccommodationEntry[] = [
   { person: 'Зайкина Кристина Сергеевна', roommates: ['Елисеева Ксения Николаевна'] },
   { person: 'Ивлева Юлия Анатольевна', roommates: ['Халамоник Елена Александровна'] },
   { person: 'Касьянов Даниил Вадимович', roommates: ['Шибанов Мирон'] },
-  { person: 'Климов Станислав Андреевич', roommates: ['Андронов Андрей Михайлович'] },
+  { person: 'Климов Станислав Андреевич', roommates: ['Михаил Шилов'] },
   { person: 'Кузин Дмитрий Юрьевич', roommates: ['Неплях Артем'] },
   { person: 'Кузнецов Максим Игоревич', roommates: ['Шольчев Владислав'] },
   {
@@ -38,7 +38,7 @@ export const forestAccommodationEntries: ForestAccommodationEntry[] = [
   {
     person: 'Леонов Егор Вячеславич',
     roommates: ['Денишев Роман', 'Попов Виталий'],
-    stay: 'с 1 на 2',
+    stay: '1 день, приедет 1-го числа',
   },
   { person: 'Ломакин Денис Владимирович', roommates: ['Шайнога Максим Васильевич'] },
   { person: 'Максимов Сергей Федорович', roommates: ['Макушин Вячеслав Романович'] },
@@ -81,7 +81,7 @@ export const forestAccommodationEntries: ForestAccommodationEntry[] = [
   { person: 'Смирнов Павел Георгиевич', roommates: ['Трясцин Михаил Викторович'] },
   { person: 'Стельмах', roommates: [] },
   { person: 'Таджибаев Руслан Азизович', roommates: ['Предеин Стефан Сергеевич'] },
-  { person: 'Талапин Максим Игоревич', roommates: ['Павловский Дмитрий'] },
+  { person: 'Талапин Максим Игоревич', roommates: ['Павловский Дмитрий Сергеевич'] },
   { person: 'Трясцин Михаил Викторович', roommates: ['Смирнов Павел Георгиевич'] },
   {
     person: 'Тыртов Александр Сергеевич',
