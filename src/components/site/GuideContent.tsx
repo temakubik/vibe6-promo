@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowLeft,
@@ -32,11 +33,13 @@ import {
   accommodationPlaces,
   guideSections,
   knowledgeBase,
+  resortMapPlaces,
   scheduleDays,
   scheduleNotes,
   type GuideSectionSlug,
   weatherLocations,
 } from '@/lib/knowledge-base'
+import lesArtResortMap from '@/assets/les-art-resort-map-2026.jpg'
 import transportDepartureMap from '@/assets/transport-bus-departure-map.jpg'
 import { forestAccommodationEntries } from '@/lib/forest-accommodation'
 import { moscowAccommodationNoStay, moscowAccommodationRooms } from '@/lib/moscow-accommodation'
@@ -413,6 +416,8 @@ function GuideSectionContent({ slug }: { slug: GuideSectionSlug }) {
       return <ScheduleSection />
     case 'places':
       return <PlacesSection />
+    case 'resort-map':
+      return <ResortMapSection />
     case 'weather':
       return <WeatherSection />
     case 'moscow-accommodation':
@@ -683,6 +688,115 @@ function PlacesSection() {
               </article>
             )
           })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function ResortMapSection() {
+  const [query, setQuery] = useState('')
+
+  const matches = useMemo(() => {
+    const normalizedQuery = normalizeSearch(query)
+    if (!normalizedQuery) return resortMapPlaces
+
+    return resortMapPlaces.filter((place) =>
+      normalizeSearch(
+        [place.markers, place.title, place.description, place.searchTerms].join(' ')
+      ).includes(normalizedQuery)
+    )
+  }, [query])
+
+  return (
+    <section className="pb-10 sm:pb-12">
+      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
+        <div className="mb-8">
+          <TagChip variant="lime">/resort_map</TagChip>
+          <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
+            Лес-резорт
+          </h2>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-ink/65 sm:text-lg">
+            Карта Les Art Resort и текстовый указатель по территории. Найди место по
+            названию, букве на карте или обычному запросу — например, «парковка»,
+            «детская площадка» или «аквариум».
+          </p>
+        </div>
+
+        <figure>
+          <a
+            href={lesArtResortMap.src}
+            target="_blank"
+            rel="noreferrer"
+            className="block overflow-hidden rounded-[24px] border border-ink/10 bg-white"
+            aria-label="Открыть карту Les Art Resort в полном размере"
+          >
+            <Image
+              src={lesArtResortMap}
+              alt="Карта территории Les Art Resort с корпусами, виллами, площадками, комплексами и парковками"
+              sizes="(min-width: 1280px) 980px, (min-width: 1024px) calc(100vw - 380px), calc(100vw - 32px)"
+              className="h-auto w-full"
+            />
+          </a>
+          <figcaption className="mt-3 flex flex-col gap-2 text-sm text-ink/55 sm:flex-row sm:items-center sm:justify-between">
+            <span>Нажми на карту, чтобы открыть её в полном размере.</span>
+            <span className="font-mono text-xs uppercase tracking-widest">Карта 2026</span>
+          </figcaption>
+        </figure>
+
+        <div className="mt-10">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label
+              htmlFor="resort-place-search"
+              className="font-mono text-xs uppercase tracking-widest text-ink/45"
+            >
+              /поиск
+            </label>
+            <input
+              id="resort-place-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Название, буква или тип места"
+              className="h-12 w-full border-0 border-b border-ink/10 bg-transparent px-0 font-sans text-base text-ink outline-none placeholder:text-ink/35 focus:border-vibe"
+            />
+          </div>
+
+          <div
+            className="mt-4 font-mono text-xs uppercase tracking-widest text-ink/45"
+            aria-live="polite"
+          >
+            {normalizeSearch(query)
+              ? `Найдено: ${matches.length}`
+              : `Все места: ${resortMapPlaces.length}`}
+          </div>
+
+          {matches.length ? (
+            <div className="mt-4 grid gap-x-8 sm:grid-cols-2">
+              {matches.map((place) => (
+                <article
+                  key={place.markers}
+                  className="grid grid-cols-[48px_minmax(0,1fr)] gap-4 border-b border-ink/10 py-5"
+                >
+                  <div className="flex h-10 min-w-10 items-center justify-center self-start rounded-full bg-lime px-2 font-mono text-xs font-semibold text-ink">
+                    {place.markers}
+                  </div>
+                  <div>
+                    <h3 className="font-display text-2xl leading-tight text-ink">
+                      {place.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-ink/65 sm:text-base">
+                      {place.description}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-6 border-b border-ink/10 py-5 text-sm text-ink/65">
+              Ничего не найдено. Попробуй название места или букву с карты.
+            </div>
+          )}
         </div>
       </div>
     </section>

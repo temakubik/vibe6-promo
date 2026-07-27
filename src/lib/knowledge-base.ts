@@ -103,6 +103,13 @@ export const guideSections = [
     accent: 'paper',
   },
   {
+    slug: 'resort-map',
+    title: 'Лес-резорт',
+    description: 'Карта территории Les Art Resort и поиск корпусов, площадок и сервисов.',
+    tag: '/resort_map',
+    accent: 'lime',
+  },
+  {
     slug: 'weather',
     title: 'Погода',
     description: 'Живой прогноз на ближайшие 7 дней для Москвы и Les Art Resort.',
@@ -154,6 +161,135 @@ export const guideSections = [
 ] as const
 
 export type GuideSectionSlug = (typeof guideSections)[number]['slug']
+
+export const resortMapPlaces = [
+  {
+    markers: 'A',
+    title: 'Корпуса «CASA»',
+    searchTerms: 'каса жильё жилые корпуса',
+    description:
+      'Пять жилых корпусов в правой части карты, рядом со зданием «OPERA». Номера корпусов отмечены отдельно.',
+  },
+  {
+    markers: 'B',
+    title: 'Виллы',
+    searchTerms: 'вилла жильё дома',
+    description:
+      'Десять вилл в центральной части территории, западнее здания «OPERA». На карте виллы пронумерованы от 1 до 10.',
+  },
+  {
+    markers: 'C',
+    title: 'Таунхаусы «FAMILIA»',
+    searchTerms: 'фамилия таунхаус жильё дома',
+    description:
+      'Десять таунхаусов в верхней левой части карты. Номера домов отмечены от 1 до 10.',
+  },
+  {
+    markers: 'D',
+    title: 'Здание «OPERA»',
+    searchTerms: 'опера здание',
+    description:
+      'Большое здание в центральной правой части карты, между корпусами «CASA» и виллами.',
+  },
+  {
+    markers: 'E',
+    title: 'Здание «ACADEMIA»',
+    searchTerms: 'академия здание',
+    description:
+      'Большое здание в левой части территории, рядом со спортивными площадками и комплексом «AQUARIUM».',
+  },
+  {
+    markers: 'F',
+    title: 'Горка для катания «MONTI»',
+    searchTerms: 'монти горка катание',
+    description:
+      'Горка в верхней левой части карты, ниже пункта проката «DEPO» и рядом с детской площадкой «NEMO».',
+  },
+  {
+    markers: 'G',
+    title: 'Павильон «BELVEDER»',
+    searchTerms: 'бельведер павильон',
+    description:
+      'Павильон в нижней левой части центральной зоны, рядом с Аллеей Звезд.',
+  },
+  {
+    markers: 'H',
+    title: 'Пункт проката «DEPO»',
+    searchTerms: 'депо прокат аренда',
+    description:
+      'Пункт проката в верхней левой части карты, рядом с таунхаусами «FAMILIA» и горкой «MONTI».',
+  },
+  {
+    markers: 'I, J',
+    title: 'Спортивные площадки',
+    searchTerms: 'спорт площадка',
+    description:
+      'Спортивные площадки находятся в левой части территории, рядом со зданием «ACADEMIA» и парковкой R.',
+  },
+  {
+    markers: 'K',
+    title: 'Комплекс «AQUARIUM»',
+    searchTerms: 'аквариум комплекс временно закрыт не работает',
+    description:
+      'Комплекс рядом со зданием «ACADEMIA» и комплексом «LAGUNA». По информации на карте временно не работает.',
+  },
+  {
+    markers: 'L',
+    title: 'Комплекс «LAGUNA»',
+    searchTerms: 'лагуна комплекс',
+    description:
+      'Комплекс в левой центральной части территории, рядом с «AQUARIUM».',
+  },
+  {
+    markers: 'M',
+    title: 'ЭКО-огород',
+    searchTerms: 'эко огород сад',
+    description:
+      'ЭКО-огород находится в нижней центральной части карты, рядом с мини-гольфом.',
+  },
+  {
+    markers: 'N',
+    title: 'Мини-гольф',
+    searchTerms: 'мини гольф игра',
+    description:
+      'Площадка мини-гольфа в нижней центральной части территории, рядом с ЭКО-огородом и парковкой T.',
+  },
+  {
+    markers: 'O',
+    title: 'Детская площадка «NEMO»',
+    searchTerms: 'немо дети детская площадка',
+    description:
+      'Детская площадка в верхней левой части карты, между таунхаусами «FAMILIA» и горкой «MONTI».',
+  },
+  {
+    markers: 'P',
+    title: 'Фонтан «SIMONA»',
+    searchTerms: 'симона фонтан',
+    description:
+      'Фонтан в левой центральной части территории, между спортивными площадками и комплексом «AQUARIUM».',
+  },
+  {
+    markers: 'Q',
+    title: 'Часовня',
+    searchTerms: 'часовня церковь',
+    description:
+      'Часовня в центральной части карты, севернее вилл и западнее здания «OPERA».',
+  },
+  {
+    markers: 'R, S, T',
+    title: 'Парковка',
+    searchTerms: 'парковка стоянка машина автомобиль авто въезд',
+    description:
+      'Парковки отмечены в трёх частях территории: R — слева, S — у нижнего левого въезда, T — у нижнего правого въезда.',
+  },
+  {
+    markers: 'U',
+    title: 'Аллея Звезд',
+    searchTerms: 'аллея звёзд прогулка',
+    description:
+      'Аллея Звезд находится в центральной части территории, между павильоном «BELVEDER» и виллами.',
+  },
+] as const
 
 export const scheduleDays = [
   {
