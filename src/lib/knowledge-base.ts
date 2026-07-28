@@ -299,7 +299,6 @@ export const scheduleDays = [
     date: '31 июля',
     accent: 'vibe',
     items: [
-      { time: '12:00', title: 'Заезд группы (78 чел.)' },
       { time: '12:00 - 13:00', title: 'Онбординг', place: 'Конференц-зал «Турандот»' },
       { time: '13:00 - 15:00', title: 'Обед', place: 'Ресторан Podium' },
       {
@@ -327,6 +326,7 @@ export const scheduleDays = [
       { time: '09:00 - 10:00', title: 'Завтрак', place: 'Ресторан Podium' },
       { time: '10:30 - 12:00', title: 'Воркшопы', place: '«Турандот», «Травиата», «Богема»' },
       { time: '12:00 - 13:00', title: 'Свободное время' },
+      { time: '13:00 - 14:00', title: 'Обед', place: 'Ресторан Podium' },
       { time: '14:00 - 15:30', title: 'Воркшопы', place: '«Турандот», «Травиата», «Богема»' },
       {
         time: '16:00 - 17:00',

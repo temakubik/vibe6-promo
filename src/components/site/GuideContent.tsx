@@ -13,6 +13,7 @@ import {
   CloudLightning,
   CloudRain,
   CloudSun,
+  ChevronUp,
   Luggage,
   Plane,
   Shirt,
@@ -21,13 +22,6 @@ import {
   Sun,
 } from 'lucide-react'
 import { TagChip } from '@/components/site/Decor'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   accommodationPlaces,
@@ -308,6 +302,34 @@ export function GuideShell({
 }) {
   const initialSlug = currentSlug ?? guideSections[0].slug
   const [activeSlug, setActiveSlug] = useState<GuideSectionSlug>(initialSlug)
+  const [isMobileSectionMenuOpen, setIsMobileSectionMenuOpen] = useState(false)
+  const activeSection =
+    guideSections.find((section) => section.slug === activeSlug) ?? guideSections[0]
+
+  useEffect(() => {
+    if (!isMobileSectionMenuOpen) return
+
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileSectionMenuOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', closeOnEscape)
+
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isMobileSectionMenuOpen])
+
+  const selectMobileSection = (slug: GuideSectionSlug) => {
+    setActiveSlug(slug)
+    setIsMobileSectionMenuOpen(false)
+
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById('guide-section-content')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
 
   return (
     <>
@@ -353,29 +375,9 @@ export function GuideShell({
         </div>
       </section>
 
-      <section className="py-8 sm:py-10">
+      <section className="py-8 pb-28 sm:py-10 sm:pb-32 lg:pb-10">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-          <div className="lg:hidden">
-            <div className="pb-2">
-              <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                Раздел базы знаний
-              </div>
-              <Select value={activeSlug} onValueChange={(value) => setActiveSlug(value as GuideSectionSlug)}>
-                <SelectTrigger className="mt-3 h-12 w-full rounded-none border-x-0 border-t-0 border-b border-ink/10 bg-transparent px-0 font-display text-base text-ink shadow-none">
-                  <SelectValue placeholder="Выбери раздел" />
-                </SelectTrigger>
-                <SelectContent>
-                  {guideSections.map((section) => (
-                    <SelectItem key={section.slug} value={section.slug}>
-                      {section.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="mt-6 grid gap-6 lg:mt-0 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
+          <div className="grid gap-6 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start">
             <aside className="hidden lg:block lg:sticky lg:top-24">
               <div className="bg-paper px-5 py-4">
                 <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
@@ -400,12 +402,93 @@ export function GuideShell({
               </div>
             </aside>
 
-            <div className="min-w-0">
+            <div id="guide-section-content" className="min-w-0 scroll-mt-6">
               <GuideSectionContent slug={activeSlug} />
             </div>
           </div>
         </div>
       </section>
+
+      {isMobileSectionMenuOpen ? (
+        <button
+          type="button"
+          aria-label="Закрыть меню разделов"
+          onClick={() => setIsMobileSectionMenuOpen(false)}
+          className="fixed inset-0 z-40 bg-ink/20 backdrop-blur-[2px] lg:hidden"
+        />
+      ) : null}
+
+      <div className="fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] lg:hidden">
+        <div className="mx-auto max-w-md">
+          {isMobileSectionMenuOpen ? (
+            <nav
+              id="mobile-guide-section-menu"
+              aria-label="Разделы базы знаний"
+              className="mb-2 max-h-[min(62vh,32rem)] overflow-y-auto rounded-[24px] border border-paper/10 bg-ink p-2 text-paper shadow-[0_28px_80px_rgba(16,15,14,0.42),0_8px_24px_rgba(16,15,14,0.28)]"
+            >
+              <div className="flex items-center justify-between px-3 pb-2 pt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-paper/45">
+                <span>Все разделы</span>
+                <span>{guideSections.length}</span>
+              </div>
+
+              <div className="grid gap-1">
+                {guideSections.map((section) => {
+                  const isActive = section.slug === activeSlug
+
+                  return (
+                    <button
+                      key={section.slug}
+                      type="button"
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={() => selectMobileSection(section.slug)}
+                      className={`flex min-h-12 items-center justify-between gap-4 rounded-[16px] px-3 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vibe focus-visible:ring-offset-2 focus-visible:ring-offset-ink ${
+                        isActive
+                          ? 'bg-paper text-ink'
+                          : 'text-paper/75 hover:bg-paper/10 hover:text-paper'
+                      }`}
+                    >
+                      <span className="font-display text-lg leading-none">{section.title}</span>
+                      <span
+                        className={`shrink-0 font-mono text-[10px] uppercase tracking-wider ${
+                          isActive ? 'text-vibe' : 'text-paper/35'
+                        }`}
+                      >
+                        {section.tag}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </nav>
+          ) : null}
+
+          <button
+            type="button"
+            aria-expanded={isMobileSectionMenuOpen}
+            aria-controls="mobile-guide-section-menu"
+            onClick={() => setIsMobileSectionMenuOpen((isOpen) => !isOpen)}
+            className="flex min-h-16 w-full items-center justify-between gap-4 rounded-[22px] border border-paper/10 bg-ink px-4 py-3 text-left text-paper shadow-[0_20px_60px_rgba(16,15,14,0.38),0_6px_18px_rgba(16,15,14,0.25)] transition-transform active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-vibe focus-visible:ring-offset-2"
+          >
+            <span className="min-w-0">
+              <span className="block font-mono text-[10px] uppercase tracking-[0.16em] text-paper/45">
+                Раздел базы знаний
+              </span>
+              <span className="mt-1 block truncate font-display text-xl leading-none">
+                {activeSection.title}
+              </span>
+            </span>
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-paper/10">
+              <ChevronUp
+                size={18}
+                aria-hidden="true"
+                className={`transition-transform duration-200 ${
+                  isMobileSectionMenuOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </span>
+          </button>
+        </div>
+      </div>
     </>
   )
 }
