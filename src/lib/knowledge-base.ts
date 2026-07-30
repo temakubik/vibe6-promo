@@ -366,14 +366,14 @@ export const accommodationPlaces = [
   {
     id: 'moscow-hotel',
     period: '30 июля',
-    title: 'Sheraton Palace Moscow Hotel',
+    title: 'Sheraton Palace Moscow Hotel / Сафмар Палас Москва',
     address: 'Москва, 1-я Тверская-Ямская улица, 19',
     website: 'https://palacemoscow.ru/',
     description:
       'Городской отель в центре Москвы. На официальном сайте его описывают как комфортный отель для бизнес-поездок и отдыха.',
     notes: [
       'Завтрак включён.',
-      'Заселение с 14:00.',
+      'Заселение с 15:00.',
       'Если приехали раньше, багаж можно оставить на хранение.',
     ],
   },
@@ -396,7 +396,7 @@ export const weatherLocations = [
   {
     id: 'moscow',
     title: 'Москва',
-    subtitle: 'Sheraton Palace Moscow Hotel',
+    subtitle: 'Sheraton Palace Moscow Hotel / Сафмар Палас Москва',
     latitude: 55.7756,
     longitude: 37.5868,
   },
