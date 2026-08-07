@@ -22,9 +22,7 @@ import {
   Sun,
 } from 'lucide-react'
 import { TagChip } from '@/components/site/Decor'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  accommodationPlaces,
   guideSections,
   knowledgeBase,
   resortMapPlaces,
@@ -35,9 +33,6 @@ import {
 } from '@/lib/knowledge-base'
 import lesArtResortMap from '@/assets/les-art-resort-map-2026.jpg'
 import transportDepartureMap from '@/assets/transport-bus-departure-map.jpg'
-import { forestAccommodationEntries } from '@/lib/forest-accommodation'
-import { moscowAccommodationNoStay, moscowAccommodationRooms } from '@/lib/moscow-accommodation'
-import { transportEntries } from '@/lib/transport'
 import { getWorkshopSlotBySchedule } from '@/lib/workshops'
 
 const KNOWLEDGE_COVER =
@@ -49,11 +44,6 @@ const normalizeSearch = (value: string) =>
     .replaceAll('ё', 'е')
     .replace(/\s+/g, ' ')
     .trim()
-
-const getMapLinks = (query: string) => ({
-  yandex: `https://yandex.ru/maps/?text=${encodeURIComponent(query)}`,
-  google: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`,
-})
 
 type WeatherForecastResponse = {
   daily: {
@@ -123,177 +113,6 @@ const getForecastSummary = (day: WeatherDay) => {
   if (day.temperatureMax <= 18) return 'Будет прохладно'
   return 'Комфортная погода'
 }
-
-type AccommodationPlace = 'moscow' | 'les-art-resort'
-
-const accommodationPlaceMeta: Record<
-  AccommodationPlace,
-  { label: string; variant: 'lime' | 'pink' }
-> = {
-  moscow: {
-    label: 'Москва',
-    variant: 'lime',
-  },
-  'les-art-resort': {
-    label: 'Les Art Resort',
-    variant: 'pink',
-  },
-}
-
-type AccommodationPresence = {
-  place: AccommodationPlace
-  roommates: string[]
-  stay?: string
-  isStaying: boolean
-}
-
-type AccommodationPersonResult = {
-  person: string
-  normalized: string
-  presences: AccommodationPresence[]
-}
-
-type TransportResult = {
-  person: string
-  normalized: string
-  type: 'bus' | 'self'
-  direction?: string
-  detail?: string
-}
-
-const accommodationPlaceOrder: Record<AccommodationPlace, number> = {
-  moscow: 0,
-  'les-art-resort': 1,
-}
-
-const knownAccommodationPeople = Array.from(
-  new Set([
-    ...moscowAccommodationRooms.flatMap((room) => room.members),
-    ...moscowAccommodationNoStay,
-    ...forestAccommodationEntries.map((entry) => entry.person),
-  ])
-)
-
-const resolveKnownAccommodationPerson = (name: string) => {
-  const normalized = normalizeSearch(name)
-  const exactMatch = knownAccommodationPeople.find((person) => normalizeSearch(person) === normalized)
-  if (exactMatch) return exactMatch
-
-  const partialMatches = knownAccommodationPeople.filter((person) => {
-    const candidate = normalizeSearch(person)
-    return candidate.startsWith(`${normalized} `) || normalized.startsWith(`${candidate} `)
-  })
-
-  if (partialMatches.length === 1) {
-    return partialMatches[0]
-  }
-
-  return name
-}
-
-const accommodationLookup = (() => {
-  const byPerson = new Map<string, AccommodationPersonResult>()
-
-  const ensurePerson = (personName: string) => {
-    const person = resolveKnownAccommodationPerson(personName)
-    const normalized = normalizeSearch(person)
-    const existing = byPerson.get(normalized)
-
-    if (existing) {
-      return existing
-    }
-
-    const created: AccommodationPersonResult = {
-      person,
-      normalized,
-      presences: [],
-    }
-
-    byPerson.set(normalized, created)
-    return created
-  }
-
-  const upsertPresence = (personName: string, presence: AccommodationPresence) => {
-    const person = ensurePerson(personName)
-    const roommates = Array.from(
-      new Set(
-        presence.roommates
-          .map(resolveKnownAccommodationPerson)
-          .filter((roommate) => normalizeSearch(roommate) !== person.normalized)
-      )
-    )
-
-    const existingPresence = person.presences.find((item) => item.place === presence.place)
-    if (!existingPresence) {
-      person.presences.push({
-        ...presence,
-        roommates,
-      })
-      return
-    }
-
-    existingPresence.roommates = Array.from(new Set([...existingPresence.roommates, ...roommates]))
-    existingPresence.stay = existingPresence.stay ?? presence.stay
-    existingPresence.isStaying = existingPresence.isStaying || presence.isStaying
-  }
-
-  for (const room of moscowAccommodationRooms) {
-    const members = room.members.map(resolveKnownAccommodationPerson)
-
-    if (members.length < 2) {
-      for (const person of members) {
-        upsertPresence(person, {
-          place: 'moscow',
-          roommates: [],
-          isStaying: false,
-        })
-      }
-
-      continue
-    }
-
-    for (const person of members) {
-      upsertPresence(person, {
-        place: 'moscow',
-        roommates: members.filter((member) => member !== person),
-        isStaying: true,
-      })
-    }
-  }
-
-  for (const name of moscowAccommodationNoStay) {
-    upsertPresence(name, {
-      place: 'moscow',
-      roommates: [],
-      isStaying: false,
-    })
-  }
-
-  for (const entry of forestAccommodationEntries) {
-    upsertPresence(entry.person, {
-      place: 'les-art-resort',
-      roommates: entry.roommates,
-      stay: entry.stay,
-      isStaying: true,
-    })
-  }
-
-  return Array.from(byPerson.values())
-    .map((person) => ({
-      ...person,
-      presences: person.presences.sort(
-        (a, b) => accommodationPlaceOrder[a.place] - accommodationPlaceOrder[b.place]
-      ),
-    }))
-    .sort((a, b) => a.person.localeCompare(b.person, 'ru'))
-})()
-
-const transportLookup: TransportResult[] = transportEntries
-  .map((entry) => ({
-    ...entry,
-    normalized: normalizeSearch(entry.person),
-  }))
-  .sort((a, b) => a.person.localeCompare(b.person, 'ru'))
 
 export function GuideShell({
   currentSlug,
@@ -497,14 +316,10 @@ function GuideSectionContent({ slug }: { slug: GuideSectionSlug }) {
   switch (slug) {
     case 'schedule':
       return <ScheduleSection />
-    case 'places':
-      return <PlacesSection />
     case 'resort-map':
       return <ResortMapSection />
     case 'weather':
       return <WeatherSection />
-    case 'moscow-accommodation':
-      return <MoscowAccommodationSection />
     case 'transport':
       return <TransportSection />
     case 'packing':
@@ -683,100 +498,6 @@ function WeatherSection() {
   )
 }
 
-function PlacesSection() {
-  return (
-    <section className="pb-10 sm:pb-12">
-      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
-        <div className="mb-8">
-          <TagChip variant="paper">/places</TagChip>
-          <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
-            Проживание
-          </h2>
-        </div>
-
-        <div className="space-y-10">
-          {accommodationPlaces.map((place) => {
-            const maps = getMapLinks(place.address)
-
-            return (
-              <article key={place.id} className="border-b border-ink/10 pb-10 last:border-b-0 last:pb-0">
-                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                  {place.period}
-                </div>
-                <h3 className="mt-3 font-display text-3xl leading-tight sm:text-4xl">
-                  {place.title}
-                </h3>
-                <p className="mt-4 max-w-3xl text-base leading-relaxed text-ink/70 sm:text-lg">
-                  {place.description}
-                </p>
-
-                <div className="mt-6 space-y-4">
-                  <div className="border-b border-ink/8 pb-4">
-                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                      Адрес
-                    </div>
-                    <div className="mt-2 text-base text-ink">{place.address}</div>
-                  </div>
-
-                  <div className="border-b border-ink/8 pb-4">
-                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                      Сайт
-                    </div>
-                    <a
-                      href={place.website}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-2 inline-flex items-center gap-2 text-base text-ink underline underline-offset-4"
-                    >
-                      Перейти на сайт
-                      <ArrowUpRight size={16} />
-                    </a>
-                  </div>
-
-                  <div className="border-b border-ink/8 pb-4">
-                    <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                      Важно
-                    </div>
-                    <ul className="mt-3 space-y-3">
-                      {place.notes.map((note) => (
-                        <li key={note} className="flex items-start gap-3 text-sm text-ink/75 sm:text-base">
-                          <Check size={16} className="mt-1 shrink-0 text-lime" />
-                          <span>{note}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <a
-                    href={maps.yandex}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
-                  >
-                    Яндекс Карты
-                    <ArrowUpRight size={16} />
-                  </a>
-                  <a
-                    href={maps.google}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
-                  >
-                    Google Maps
-                    <ArrowUpRight size={16} />
-                  </a>
-                </div>
-              </article>
-            )
-          })}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function ResortMapSection() {
   const [query, setQuery] = useState('')
 
@@ -886,99 +607,7 @@ function ResortMapSection() {
   )
 }
 
-function MoscowAccommodationSection() {
-  const [query, setQuery] = useState('')
-
-  const matches = useMemo(() => {
-    const q = normalizeSearch(query)
-    if (!q) return []
-
-    return accommodationLookup.filter((person) => person.normalized.includes(q))
-  }, [query])
-
-  return (
-    <section className="pb-10 sm:pb-12">
-      <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
-        <div className="mb-8">
-          <div>
-            <TagChip variant="lime">/neighbors</TagChip>
-            <h2 className="mt-5 font-display text-4xl leading-[1.02] sm:text-5xl">
-              Соседи
-            </h2>
-          </div>
-        </div>
-
-        <div className="bg-transparent">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-              /search
-            </div>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Например: Иванов или Артём"
-              className="h-12 w-full border-0 border-b border-ink/10 bg-transparent px-0 font-sans text-base text-ink outline-none placeholder:text-ink/35 focus:border-vibe"
-            />
-          </div>
-
-          {!normalizeSearch(query) ? (
-            <div className="mt-6 text-sm text-ink/65">
-              Поиск работает по подстроке: можно вводить имя, фамилию или часть.
-            </div>
-          ) : null}
-
-          {matches.length ? (
-            <div className="mt-6 space-y-3">
-              {matches.map((row) => (
-                <div key={row.normalized} className="border-b border-ink/8 py-4">
-                  <div className="font-display text-xl text-ink">{row.person}</div>
-                  <div className="mt-3 space-y-3">
-                    {row.presences.map((presence) => (
-                      <div key={`${row.normalized}-${presence.place}`} className="space-y-2">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <TagChip variant={accommodationPlaceMeta[presence.place].variant}>
-                            {accommodationPlaceMeta[presence.place].label}
-                          </TagChip>
-                          {presence.stay ? (
-                            <div className="font-mono text-xs uppercase tracking-widest text-red-500">
-                              {presence.stay}
-                            </div>
-                          ) : null}
-                        </div>
-                        <div className="text-sm text-ink/70">
-                          {presence.isStaying
-                            ? presence.roommates.length
-                              ? `Соседи: ${presence.roommates.join(', ')}`
-                              : 'Соседи не указаны'
-                            : 'Не живет в гостинице'}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : normalizeSearch(query) ? (
-            <div className="mt-6 text-sm text-ink/65">
-              Ничего не найдено.
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function TransportSection() {
-  const [query, setQuery] = useState('')
-
-  const matches = useMemo(() => {
-    const q = normalizeSearch(query)
-    if (!q) return []
-
-    return transportLookup.filter((person) => person.normalized.includes(q))
-  }, [query])
-
   return (
     <section className="pb-10 sm:pb-12">
       <div className="mx-auto max-w-[1040px] px-3 sm:px-4 lg:px-6">
@@ -989,116 +618,45 @@ function TransportSection() {
               Транспорт
             </h2>
             <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink/65 sm:text-base">
-              Автобус по умолчанию идёт туда и обратно. Для двух человек вынесли отдельные
-              пометки по одному направлению. Если рядом указан самостоятельный трансфер,
-              дополнительно показываем, это машина или такси.
+              В публичной базе знаний оставили только общую информацию по отправлению автобуса.
+              Персональные логистические данные участников убраны.
             </p>
           </div>
         </div>
 
         <div className="bg-transparent">
-          <Tabs defaultValue="departure" className="gap-6">
-            <TabsList className="h-auto w-full justify-start rounded-[20px] bg-ink/5 p-1">
-              <TabsTrigger
-                value="departure"
-                className="min-h-11 rounded-[16px] px-4 py-2.5 font-display text-sm text-ink data-[state=active]:bg-white data-[state=active]:text-ink sm:text-base"
-              >
-                Место отправления
-              </TabsTrigger>
-              <TabsTrigger
-                value="search"
-                className="min-h-11 rounded-[16px] px-4 py-2.5 font-display text-sm text-ink data-[state=active]:bg-white data-[state=active]:text-ink sm:text-base"
-              >
-                Поиск по списку
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="departure">
-              <div className="rounded-[24px] border border-ink/10 bg-white px-4 py-4 sm:px-5">
-                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                  Отправление автобуса
-                </div>
-                <div className="mt-4 space-y-4 text-sm leading-relaxed text-ink/75 sm:text-base">
-                  <p>
-                    <strong className="font-semibold text-ink">Точка отправления:</strong>{' '}
-                    гостиница
-                    <strong className="font-semibold text-ink"> Самфар Палас Москва</strong>,
-                    1-я Тверская-Ямская ул., 19.
-                  </p>
-                  <p>
-                    <strong className="font-semibold text-ink">Ближайшее метро:</strong>{' '}
-                    Белорусская.
-                  </p>
-                  <p>
-                    <strong className="font-semibold text-ink">Где ждать автобус:</strong> либо на
-                    ул. Большая Грузинская, либо на 1-й Брестской.
-                  </p>
-                  <p>
-                    <strong className="font-semibold text-ink">Сбор:</strong> 9:30.
-                    <br />
-                    <strong className="font-semibold text-ink">Отправление:</strong> 9:50.
-                    <br />
-                    <strong className="font-semibold text-ink">Важно:</strong> ждать никого не
-                    будем.
-                  </p>
-                </div>
-                <img
-                  src={transportDepartureMap.src}
-                  alt="Схема точки отправления автобуса у гостиницы Самфар Палас Москва"
-                  className="mt-4 w-full rounded-[20px] border border-ink/10 object-cover"
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="search">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
-                  /search
-                </div>
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Например: Иванов или Артём"
-                  className="h-12 w-full border-0 border-b border-ink/10 bg-transparent px-0 font-sans text-base text-ink outline-none placeholder:text-ink/35 focus:border-vibe"
-                />
-              </div>
-
-              {!normalizeSearch(query) ? (
-                <div className="mt-6 text-sm text-ink/65">
-                  Поиск работает по подстроке: можно вводить имя, фамилию или часть.
-                </div>
-              ) : null}
-
-              {matches.length ? (
-                <div className="mt-6 space-y-3">
-                  {matches.map((row) => (
-                    <div key={`${row.normalized}-${row.type}`} className="border-b border-ink/8 py-4">
-                      <div className="font-display text-xl text-ink">{row.person}</div>
-                      <div className="mt-3 flex flex-wrap items-center gap-3">
-                        <TagChip variant={row.type === 'bus' ? 'lime' : 'paper'}>
-                          {row.type === 'bus' ? 'Автобус' : 'Самостоятельно'}
-                        </TagChip>
-                        {row.detail ? (
-                          <div className="font-mono text-xs uppercase tracking-widest text-ink/55">
-                            {row.detail}
-                          </div>
-                        ) : null}
-                        {row.direction ? (
-                          <div className="font-mono text-xs uppercase tracking-widest text-vibe">
-                            {row.direction}
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : normalizeSearch(query) ? (
-                <div className="mt-6 text-sm text-ink/65">
-                  Ничего не найдено.
-                </div>
-              ) : null}
-            </TabsContent>
-          </Tabs>
+          <div className="rounded-[24px] border border-ink/10 bg-white px-4 py-4 sm:px-5">
+            <div className="font-mono text-xs uppercase tracking-widest text-ink/45">
+              Отправление автобуса
+            </div>
+            <div className="mt-4 space-y-4 text-sm leading-relaxed text-ink/75 sm:text-base">
+              <p>
+                <strong className="font-semibold text-ink">Точка отправления:</strong>{' '}
+                гостиница
+                <strong className="font-semibold text-ink"> Самфар Палас Москва</strong>,
+                1-я Тверская-Ямская ул., 19.
+              </p>
+              <p>
+                <strong className="font-semibold text-ink">Ближайшее метро:</strong> Белорусская.
+              </p>
+              <p>
+                <strong className="font-semibold text-ink">Где ждать автобус:</strong> либо на ул.
+                Большая Грузинская, либо на 1-й Брестской.
+              </p>
+              <p>
+                <strong className="font-semibold text-ink">Сбор:</strong> 9:30.
+                <br />
+                <strong className="font-semibold text-ink">Отправление:</strong> 9:50.
+                <br />
+                <strong className="font-semibold text-ink">Важно:</strong> ждать никого не будем.
+              </p>
+            </div>
+            <img
+              src={transportDepartureMap.src}
+              alt="Схема точки отправления автобуса у гостиницы Самфар Палас Москва"
+              className="mt-4 w-full rounded-[20px] border border-ink/10 object-cover"
+            />
+          </div>
         </div>
       </div>
     </section>

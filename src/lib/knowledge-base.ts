@@ -96,13 +96,6 @@ export const guideSections = [
     accent: 'vibe',
   },
   {
-    slug: 'places',
-    title: 'Проживание',
-    description: 'Два места проживания: Москва перед выездом и Les Art Resort на площадке.',
-    tag: '/places',
-    accent: 'paper',
-  },
-  {
     slug: 'resort-map',
     title: 'Лес-резорт',
     description: 'Карта территории Les Art Resort и поиск корпусов, площадок и сервисов.',
@@ -117,16 +110,9 @@ export const guideSections = [
     accent: 'cyan',
   },
   {
-    slug: 'moscow-accommodation',
-    title: 'Соседи',
-    description: 'Кто с кем живёт: поиск по имени и состав номеров.',
-    tag: '/neighbors',
-    accent: 'lime',
-  },
-  {
     slug: 'transport',
     title: 'Транспорт',
-    description: 'Поиск по имени: автобус, самостоятельно, машина, такси и пометки по направлениям.',
+    description: 'Общая информация по отправлению автобуса без персональных данных участников.',
     tag: '/transport',
     accent: 'cyan',
   },
@@ -360,36 +346,6 @@ export const scheduleNotes = [
   'Заселение в отель начнётся после 17:00 31.07. До этого багаж можно сдать на ресепшн.',
   'Для футбольного поля и боулинг/бильярд организаторы обеспечат доступ через контактное лицо отеля.',
   'На вечеринке в «Бельведер» рассадка фуршетная.',
-] as const
-
-export const accommodationPlaces = [
-  {
-    id: 'moscow-hotel',
-    period: '30 июля',
-    title: 'Sheraton Palace Moscow Hotel / Сафмар Палас Москва',
-    address: 'Москва, 1-я Тверская-Ямская улица, 19',
-    website: 'https://palacemoscow.ru/',
-    description:
-      'Городской отель в центре Москвы. На официальном сайте его описывают как комфортный отель для бизнес-поездок и отдыха.',
-    notes: [
-      'Завтрак включён.',
-      'Заселение с 15:00.',
-      'Если приехали раньше, багаж можно оставить на хранение.',
-    ],
-  },
-  {
-    id: 'les-art-resort',
-    period: '31 июля - 2 августа',
-    title: 'Les Art Resort',
-    address: 'Московская область, Рузский муниципальный округ, территория База отдыха Прометей, 1',
-    website: 'https://lesresort.ru/',
-    description:
-      'Загородный resort в лесной зоне Подмосковья: номера, SPA, бассейны, рестораны и бары. Это основная площадка мероприятия.',
-    notes: [
-      'Основное место проведения Vibe-6.',
-      'Примерно в часе езды от Москвы.',
-    ],
-  },
 ] as const
 
 export const weatherLocations = [

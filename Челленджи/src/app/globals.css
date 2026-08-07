@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Chava';
+  src: url('/fonts/Chava-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme inline {
+  --color-ink: #100F0E;
+  --color-paper: #F6F5FD;
+  --color-vibe: #7B36FF;
+  --color-lime: #95CE17;
+  --color-cyan: #79EDFF;
+  --color-pink: #FF3697;
+
+  --font-display: 'Chava', system-ui, sans-serif;
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  --background: #F6F5FD;
+  --foreground: #100F0E;
+  --border: rgba(16, 15, 14, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class*="font-display"],
+.font-display {
+  font-weight: 400 !important;
+}
+
+.bg-pixel-grid {
+  background-image:
+    linear-gradient(to right, rgba(246, 245, 253, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(246, 245, 253, 0.06) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+::selection {
+  background: #95CE17;
+  color: #100F0E;
+}

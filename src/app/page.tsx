@@ -6,7 +6,7 @@ import { KeyNumbers, WhatWillBe, ForWhom } from '@/components/site/Sections'
 import { Program } from '@/components/site/Program'
 import { About } from '@/components/site/About'
 import { Location } from '@/components/site/Location'
-import { FAQ, FinalCTA, Footer } from '@/components/site/FAQ'
+import { Footer } from '@/components/site/FAQ'
 
 export default function Home() {
   return (
@@ -21,8 +21,6 @@ export default function Home() {
         <Program />
         <About />
         <Location />
-        <FAQ />
-        <FinalCTA />
       </main>
 
       <Footer />

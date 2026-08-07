@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 const QUICK_LINKS = [
   { href: 'https://t.me/+N_X0TPh1rqVkMTBi', label: 'Телеграм-чат', external: true },
   { href: '/guide', label: 'База знаний' },
+  { href: '/challenges', label: 'Челленджи' },
   { href: '/workshop', label: 'Workshop' },
 ] as const
 

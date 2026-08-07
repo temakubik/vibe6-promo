@@ -3,14 +3,12 @@
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import { TagChip } from './Decor'
 import { Wifi, LayoutGrid, Armchair, Car, Shirt, MapPin, Plane, Bath } from 'lucide-react'
-import { GuidePreview } from './GuidePreview'
 import { knowledgeBase } from '@/lib/knowledge-base'
 
 export function Location() {
   return (
-    <>
-      <section id="location" className="relative bg-paper py-20 sm:py-28 border-t border-ink/5">
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
+    <section id="location" className="relative bg-paper py-20 sm:py-28 border-t border-ink/5">
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
         {/* Header */}
         <div className="mb-12">
           <TagChip variant="pink">/location</TagChip>
@@ -125,11 +123,8 @@ export function Location() {
               </span>
             </div>
           </div>
-        </div>
-      </section>
-
-      <GuidePreview />
-    </>
+      </div>
+    </section>
   )
 }
 

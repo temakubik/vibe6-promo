@@ -37,6 +37,7 @@ const DAY2: Slot[] = [
   { time: '09:00 – 10:00', title: 'Завтрак',                   icon: Coffee,        color: 'lime'  },
   { time: '10:30 – 12:00', title: 'Мастер-классы',             icon: GraduationCap, color: 'vibe'  },
   { time: '12:00 – 13:00', title: 'Отдых',                     icon: Armchair,      color: 'paper' },
+  { time: '13:00 – 14:00', title: 'Обед',                      icon: Utensils,      color: 'lime'  },
   { time: '14:00 – 15:30', title: 'Мастер-классы',             icon: GraduationCap, color: 'vibe'  },
   { time: '16:00 – 17:00', title: 'Демо',                      icon: Presentation,  color: 'cyan'  },
   { time: '17:00 – 18:30', title: 'Отдых',                     icon: Armchair,      color: 'paper' },

@@ -5,6 +5,7 @@ import LoginForm from './LoginForm'
 import { logoutFromAdmin } from './actions'
 import { Button } from '@/components/ui/button'
 import { isAdminAuthenticated } from '@/lib/admin-auth'
+import { listChallengeSignups } from '@/lib/challenge-signups'
 import { getWorkshopRegistrationsByWorkshop } from '@/lib/workshop-signups'
 import { workshopSlots } from '@/lib/workshops'
 
@@ -42,6 +43,7 @@ export default async function AdminPage() {
   }
 
   const registrationsByWorkshop = await getWorkshopRegistrationsByWorkshop(allWorkshopIds)
+  const challengeSignups = await listChallengeSignups()
   const workshops = workshopSlots.flatMap((slot) =>
     slot.items.map((item) => ({
       id: item.id,
@@ -54,6 +56,18 @@ export default async function AdminPage() {
       registrations: registrationsByWorkshop[item.id] ?? [],
     }))
   )
+  const challenges = challengeSignups
+    .slice()
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+    .map((signup) => ({
+      id: signup.id,
+      name: signup.name,
+      telegramUsername: signup.telegramUsername,
+      willingToBetMoney: signup.willingToBetMoney,
+      hasChallengeIdea: signup.hasChallengeIdea,
+      createdAt: signup.createdAt,
+      updatedAt: signup.updatedAt,
+    }))
 
   return (
     <main className="min-h-screen bg-paper text-ink">
@@ -96,11 +110,11 @@ export default async function AdminPage() {
           <div className="mt-8 max-w-[980px]">
             <div className="font-mono text-xs uppercase tracking-widest text-vibe">/admin</div>
             <h1 className="mt-5 font-display text-5xl leading-[0.92] sm:text-6xl lg:text-7xl">
-              Регистрации на воркшопы
+              Регистрации
             </h1>
             <p className="mt-6 max-w-3xl text-base leading-relaxed text-paper/72 sm:text-lg">
-              По каждому воркшопу видно, кто записался. Один человек может быть в нескольких
-              слотах, но в рамках каждого слота хранится только один актуальный выбор.
+              В админке собраны две воронки: записи на воркшопы и заявки на челленджи. По
+              воркшопам видно актуальный выбор по слотам, по челленджам - отдельную форму участия.
             </p>
           </div>
         </div>
@@ -108,9 +122,16 @@ export default async function AdminPage() {
 
       <section className="py-10 sm:py-12">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-10">
-          <AdminDashboard workshops={workshops} />
+          <AdminDashboard workshops={workshops} challenges={challenges} />
 
           <div className="mt-12 flex flex-wrap gap-3">
+            <Link
+              href="/challenges"
+              className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
+            >
+              Челленджи
+              <ArrowUpRight size={16} />
+            </Link>
             <Link
               href="/workshop"
               className="inline-flex items-center gap-2 border-b border-ink/30 pb-1 font-display text-lg text-ink"
